@@ -12,11 +12,12 @@ function App() {
         </a>
       </div>
       <h1>Coming Soon</h1>
-      <div className="card">
+      <h2>Flow Roll Club - Tokenized and Ownable Dice Games. Perpetual and verifiable</h2>
 
+      <div className="card">
         <DiceRollAnimation></DiceRollAnimation>
       </div>
-     
+
     </>
   )
 }
