@@ -44,26 +44,28 @@ export default function DiceRollAnimation() {
             </div>
         </div>
 
-        <div id="diceResult">Click to roll the dice!</div>
+        <div id="diceResult">Flow Roll Club</div>
     </div>
 }
 
 function rollDice() {
-    let dice = document.getElementById('dice');
-    var outputDiv = document.getElementById('diceResult');
+    let dice = document.getElementById('dice') as HTMLElement;
+    var outputDiv = document.getElementById('diceResult') as HTMLDivElement;
 
     function rollDice() {
         let result = Math.floor(Math.random() * (6 - 1 + 1)) + 1;
-        dice.dataset.side = result;
+        dice.dataset.side = result.toString();
         dice.classList.toggle("reRoll");
-
-        console.log(result);
 
         outputDiv.classList.remove("reveal");
         outputDiv.classList.add("hide");
-        outputDiv.innerHTML = "You've got " + result;
+        outputDiv.innerHTML = "Rolled " + result;
         setTimeout(function () { outputDiv.classList.add("reveal"); }, 1500);
     }
 
-    dice.addEventListener("click", rollDice);
+    setInterval(() => {
+        rollDice()
+    }, 3000)
+
+    // dice.addEventListener("click", rollDice);
 }
