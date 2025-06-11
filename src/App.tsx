@@ -1,4 +1,4 @@
-import FRCLogo from "/FlowRollClubLogo.svg"
+import FRCLogo from "/logo2.webp"
 import './App.css'
 import "./DiceRollAnimation";
 import DiceRollAnimation from './DiceRollAnimation'
