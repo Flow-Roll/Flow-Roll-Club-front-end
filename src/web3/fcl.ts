@@ -1,0 +1,1 @@
+//This is for the Flow FCL.js functions to interact with the smart contracts with the flow wallet
