@@ -1,10 +1,10 @@
 import FRCLogo from "/logo2.webp"
 // import './App.css'
 import "./DiceRollAnimation";
-import DiceRollAnimation from './DiceRollAnimation'
-import WalletSelectHeader from "./WalletSelectHeader";
+import DiceRollAnimation from './components/DiceRollAnimation'
+import WalletSelectHeader from "./components/WalletSelectHeader";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
-import { NotFoundPage } from "./404Page";
+import { NotFoundPage } from "./pages/404Page";
 import { ThemeProvider } from '@mui/material/styles';
 import CssBaseline from '@mui/material/CssBaseline';
 import { styled } from "@mui/material";
@@ -13,9 +13,9 @@ import * as React from 'react';
 import CloseIcon from '@mui/icons-material/Close';
 import IconButton from '@mui/material/IconButton';
 import Box from '@mui/material/Box';
-import GamePage from "./GamePage";
-import MintPage from "./MintPage";
-import LandingPage from "./LandingPage";
+import GamePage from "./pages/GamePage";
+import MintPage from "./pages/MintPage";
+import LandingPage from "./pages/LandingPage";
 
 
 
