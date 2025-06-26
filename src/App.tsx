@@ -1,5 +1,5 @@
 import { BrowserRouter, Routes, Route } from "react-router-dom";
-import { NotFoundPage } from "./pages/404Page";
+import { GamblingQuotes404 } from "./pages/404Page";
 
 import Snackbar from '@mui/material/Snackbar';
 import * as React from 'react';
@@ -48,7 +48,8 @@ function App() {
         <Route path="/" element={<LandingPage></LandingPage>}></Route>
         <Route path="/mint" element={<MintPage></MintPage>}></Route>
         <Route path={"/game/:id"} element={<GamePage></GamePage>}></Route>
-        <Route path="*" element={<NotFoundPage></NotFoundPage>}></Route>
+        <Route path="games" element={<div>Games page</div>}></Route>
+        <Route path="*" element={<GamblingQuotes404></GamblingQuotes404>}></Route>
       </Routes>
     </BrowserRouter>)
   }
