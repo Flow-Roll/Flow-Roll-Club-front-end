@@ -9,15 +9,7 @@ import Box from '@mui/material/Box';
 import GamePage from "./pages/GamePage";
 import MintPage from "./pages/MintPage";
 import LandingPage from "./pages/LandingPage";
-
-
-//TODO: Each page should have the same walletSelectAppbar
-//The pages should be separate components that each fetch data without connected wallet
-//TODO: need to connect wallet to make a bet only
-//Need to connect wallet also to roll dice
-
-//TODO: maybe store te app button state in a higher level?
-//App button state is about wallet connecting
+import WalletSelectHeader from "./components/WalletSelectHeader";
 
 function App() {
 
@@ -65,6 +57,7 @@ function App() {
   return (
     <>
       <Box>
+        <WalletSelectHeader></WalletSelectHeader>
         {getRoutes()}
       </Box>
       <Snackbar
