@@ -143,7 +143,7 @@ const SwipeablePages = () => {
   return (
     <div className="fixed inset-0 w-full h-full bg-black overflow-hidden">
       {/* Floating header with page indicators */}
-      <div className="absolute top-0 left-0 right-0 z-10 bg-gradient-to-b from-black/50 to-transparent p-6 pt-8">
+      <div className="absolute top-0 left-0 right-0 z-10  from-black/50 to-transparent p-6 pt-8">
         <div className="flex justify-between items-center mb-4">
           <h2 className="text-xl font-bold text-white">Swipe Demo</h2>
           <span className="text-sm text-white/80 bg-black/30 px-3 py-1 rounded-full">
