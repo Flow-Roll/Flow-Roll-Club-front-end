@@ -1,8 +1,5 @@
 import React, { useRef, useEffect, useState } from 'react';
 import * as THREE from 'three';
-import { Box } from "@mui/material";
-
-// Dixy should know who needs to roll and say it. now about bets and lastBet, the prize pool.. etc
 
 const DixyDiceAssistant = () => {
     const mountRef = useRef(null);
@@ -19,6 +16,7 @@ const DixyDiceAssistant = () => {
     const [maxValue, setMaxValue] = useState(6);
     const [currentNumbers, setCurrentNumbers] = useState([1, 2, 3, 4, 5, 6]);
     const [isChangingNumbers, setIsChangingNumbers] = useState(false);
+    const [isMobile, setIsMobile] = useState(false);
 
     const messages = [
         "Hi there! I'm Dixy, your friendly dice assistant! 🎲✨ Place a Bet or Roll the dice",
@@ -33,6 +31,18 @@ const DixyDiceAssistant = () => {
     ];
 
     const [speechText, setSpeechText] = useState(messages[0]);
+
+    // Check if mobile on mount and window resize
+    useEffect(() => {
+        const checkMobile = () => {
+            setIsMobile(window.innerWidth <= 768);
+        };
+
+        checkMobile();
+        window.addEventListener('resize', checkMobile);
+
+        return () => window.removeEventListener('resize', checkMobile);
+    }, []);
 
     useEffect(() => {
         if (!isStarted) return;
@@ -84,8 +94,9 @@ const DixyDiceAssistant = () => {
         // Create dice
         createDice(scene);
 
-        // Position camera
-        camera.position.set(5, 3, 8);
+        // Position camera - adjust for mobile
+        const cameraDistance = isMobile ? 10 : 8;
+        camera.position.set(5, 3, cameraDistance);
         camera.lookAt(0, 0, 0);
 
         // Start animation loop
@@ -312,7 +323,6 @@ const DixyDiceAssistant = () => {
             position: 'relative',
             width: '100vw',
             height: '100vh',
-            //   background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
             fontFamily: "'Comic Sans MS', cursive, sans-serif",
             overflow: 'hidden'
         },
@@ -324,13 +334,15 @@ const DixyDiceAssistant = () => {
             textAlign: 'center',
             color: 'white',
             zIndex: 1000,
-            background: 'rgba(0,0,0,0.7)',
-            padding: '30px',
+            background: 'rgba(0,0,0,0.8)',
+            padding: isMobile ? '20px' : '30px',
             borderRadius: '20px',
-            backdropFilter: 'blur(10px)'
+            backdropFilter: 'blur(10px)',
+            maxWidth: isMobile ? '90vw' : '500px',
+            width: isMobile ? '90%' : 'auto'
         },
         introTitle: {
-            fontSize: '3em',
+            fontSize: isMobile ? '2em' : '3em',
             margin: 0,
             textShadow: '3px 3px 6px rgba(0,0,0,0.8)',
             background: 'linear-gradient(45deg, #ff6b6b, #4ecdc4, #45b7d1)',
@@ -340,68 +352,92 @@ const DixyDiceAssistant = () => {
             animation: 'gradientShift 3s ease infinite'
         },
         introText: {
-            fontSize: '1.2em',
+            fontSize: isMobile ? '1em' : '1.2em',
             margin: '20px 0'
         },
         ui: {
             position: 'absolute',
-            top: '20px',
-            left: '20px',
+            top: isMobile ? '10px' : '20px',
+            left: isMobile ? '10px' : '20px',
             zIndex: 100,
-            color: 'black   ',
-            textShadow: '2px 2px 4px rgba(0,0,0,0.5)'
+            color: 'black',
+            textShadow: '2px 2px 4px rgba(0,0,0,0.5)',
+            background: isMobile ? 'rgba(255,255,255,0.9)' : 'transparent',
+            padding: isMobile ? '10px' : '0',
+            borderRadius: isMobile ? '10px' : '0',
+            maxWidth: isMobile ? 'calc(100vw - 20px)' : 'none'
+        },
+        uiTitle: {
+            fontSize: isMobile ? '1.2em' : '1.5em',
+            margin: isMobile ? '0 0 5px 0' : '0 0 10px 0'
+        },
+        uiSubtitle: {
+            fontSize: isMobile ? '0.9em' : '1em',
+            margin: 0
         },
         speechBubble: {
             position: 'absolute',
-            top: '50%',
-            left: '20px',
-            transform: 'translateY(-50%)',
+            top: isMobile ? 'auto' : '50%',
+            bottom: isMobile ? '140px' : 'auto',
+            left: isMobile ? '50%' : '20px',
+            transform: isMobile ? 'translateX(-50%)' : 'translateY(-50%)',
             background: 'rgba(255, 255, 255, 0.95)',
-            padding: '20px',
+            padding: isMobile ? '15px' : '20px',
             borderRadius: '20px',
             border: '3px solid #4a90e2',
-            maxWidth: '300px',
-            fontSize: '16px',
+            maxWidth: isMobile ? 'calc(100vw - 40px)' : '300px',
+            fontSize: isMobile ? '14px' : '16px',
             color: '#333',
             boxShadow: '0 8px 32px rgba(0,0,0,0.3)',
             zIndex: 100,
-            transition: 'all 0.3s ease'
+            transition: 'all 0.3s ease',
+            textAlign: isMobile ? 'center' : 'left'
         },
         speechBubbleArrow: {
             position: 'absolute',
-            right: '-15px',
-            top: '50%',
-            transform: 'translateY(-50%)',
+            right: isMobile ? 'auto' : '-15px',
+            top: isMobile ? '-15px' : '50%',
+            left: isMobile ? '50%' : 'auto',
+            bottom: isMobile ? 'auto' : 'auto',
+            transform: isMobile ? 'translateX(-50%)' : 'translateY(-50%)',
             width: 0,
             height: 0,
-            borderLeft: '15px solid #4a90e2',
-            borderTop: '10px solid transparent',
-            borderBottom: '10px solid transparent'
+            borderLeft: isMobile ? '10px solid transparent' : '15px solid #4a90e2',
+            borderRight: isMobile ? '10px solid transparent' : 'none',
+            borderTop: isMobile ? 'none' : '10px solid transparent',
+            borderBottom: isMobile ? '15px solid #4a90e2' : '10px solid transparent'
         },
         controls: {
             position: 'absolute',
-            bottom: '20px',
+            bottom: isMobile ? '10px' : '20px',
             left: '50%',
             transform: 'translateX(-50%)',
             display: 'flex',
-            gap: '15px',
+            gap: isMobile ? '10px' : '15px',
             zIndex: 100,
             flexWrap: 'wrap',
-            justifyContent: 'center'
+            justifyContent: 'center',
+            width: isMobile ? 'calc(100% - 20px)' : 'auto',
+            maxWidth: isMobile ? '400px' : 'none'
         },
         rangeControls: {
             position: 'absolute',
-            top: '20px',
-            right: '20px',
+            top: isMobile ? 'auto' : '20px',
+            bottom: isMobile ? '80px' : 'auto',
+            right: isMobile ? '50%' : '20px',
+            left: isMobile ? '50%' : 'auto',
+            transform: isMobile ? 'translateX(50%)' : 'none',
             display: 'flex',
-            gap: '10px',
+            gap: isMobile ? '8px' : '10px',
             alignItems: 'center',
-            background: 'rgba(255, 255, 255, 0.9)',
-            padding: '15px',
+            background: 'rgba(255, 255, 255, 0.95)',
+            padding: isMobile ? '10px' : '15px',
             borderRadius: '15px',
             boxShadow: '0 4px 15px rgba(0,0,0,0.2)',
             zIndex: 100,
-            flexWrap: 'wrap'
+            flexWrap: isMobile ? 'wrap' : 'nowrap',
+            justifyContent: 'center',
+            maxWidth: isMobile ? 'calc(100vw - 40px)' : 'none'
         },
         rangeGroup: {
             display: 'flex',
@@ -411,49 +447,53 @@ const DixyDiceAssistant = () => {
         label: {
             fontWeight: 'bold',
             color: '#333',
-            fontSize: '14px'
+            fontSize: isMobile ? '12px' : '14px'
         },
         input: {
-            width: '60px',
-            padding: '8px',
+            width: isMobile ? '50px' : '60px',
+            padding: isMobile ? '6px' : '8px',
             border: '2px solid #4a90e2',
             borderRadius: '8px',
-            fontSize: '14px',
+            fontSize: isMobile ? '12px' : '14px',
             textAlign: 'center',
             fontWeight: 'bold'
         },
         smallButton: {
-            padding: '8px 16px',
+            padding: isMobile ? '6px 12px' : '8px 16px',
             background: 'linear-gradient(145deg, #4a90e2, #357abd)',
             color: 'white',
             border: 'none',
             borderRadius: '20px',
             cursor: 'pointer',
             fontFamily: 'inherit',
-            fontSize: '12px',
+            fontSize: isMobile ? '11px' : '12px',
             fontWeight: 'bold',
             boxShadow: '0 2px 10px rgba(0,0,0,0.2)',
-            transition: 'all 0.3s ease'
+            transition: 'all 0.3s ease',
+            minHeight: isMobile ? '36px' : 'auto'
         },
         button: {
-            padding: '12px 24px',
+            padding: isMobile ? '12px 20px' : '12px 24px',
             background: 'linear-gradient(145deg, #ff6b6b, #ee5a52)',
             color: 'white',
             border: 'none',
             borderRadius: '25px',
             cursor: 'pointer',
             fontFamily: 'inherit',
-            fontSize: '14px',
+            fontSize: isMobile ? '16px' : '14px',
             fontWeight: 'bold',
             boxShadow: '0 4px 15px rgba(0,0,0,0.2)',
-            transition: 'all 0.3s ease'
+            transition: 'all 0.3s ease',
+            minHeight: isMobile ? '44px' : 'auto',
+            flex: isMobile ? '1' : 'none',
+            minWidth: isMobile ? '120px' : 'auto'
         },
         canvasContainer: {
             position: 'absolute',
             top: 0,
             left: 0,
-            width: '100%',
-            height: '100%'
+            width: '50%',
+            height: '50%'
         }
     };
 
@@ -469,11 +509,21 @@ const DixyDiceAssistant = () => {
           button:hover {
             transform: translateY(-2px);
             box-shadow: 0 6px 20px rgba(0,0,0,0.3);
-            background: linear-gradient(145deg, #ff5252, #e53e3e);
           }
           
           button:active {
             transform: translateY(0);
+          }
+
+          @media (max-width: 768px) {
+            button:hover {
+              transform: none;
+            }
+            
+            button:active {
+              transform: scale(0.95);
+              transition: transform 0.1s ease;
+            }
           }
         `}
             </style>
@@ -489,16 +539,16 @@ const DixyDiceAssistant = () => {
             ) : (
                 <>
                     <div style={styles.ui}>
-                        <h2>🎲 Dixy is your Dice Assistant</h2>
-                        <p>Find a game, place a bet, roll a number</p>
+                        <h2 style={styles.uiTitle}>🎲 Dixy is your Dice Assistant</h2>
+                        <p style={styles.uiSubtitle}>Place a bet, roll a number and Dixy reacts to smart contract events in real time.</p>
                     </div>
 
                     <div style={styles.speechBubble}>
-                        <p>{speechText}</p>
+                        <p style={{ margin: 0 }}>{speechText}</p>
                         <div style={styles.speechBubbleArrow}></div>
                     </div>
-{/* 
-                    <div style={styles.rangeControls}>
+
+                    {/* <div style={styles.rangeControls}>
                         <div style={styles.rangeGroup}>
                             <label style={styles.label}>Min: </label>
                             <input
@@ -526,34 +576,14 @@ const DixyDiceAssistant = () => {
                         </button>
                     </div> */}
 
-                    <Box>
-                        <div style={styles.controls}>
-                            <button style={styles.button} onClick={changeNumbers} disabled={isRolling}>
-                                💸 BET
-                            </button>
-                            <button style={styles.button} onClick={rollDice} disabled={isChangingNumbers}>
-                                🎲 ROLL
-                            </button>
-
-                        </div>
-                    </Box>
-                    {/* <div style={styles.controls}>
-                        <button style={styles.button} onClick={rollDice} disabled={isRolling}>
-                            🎲 Roll Me!
+                    <div style={styles.controls}>
+                        <button style={styles.button} onClick={changeNumbers} disabled={isRolling}>
+                            💸 BET
                         </button>
-                        <button style={styles.button} onClick={bounceAnimation}>
-                            🦘 Make Me Bounce!
+                        <button style={styles.button} onClick={rollDice} disabled={isChangingNumbers}>
+                            🎲 ROLL
                         </button>
-                        <button style={styles.button} onClick={spinAnimation}>
-                            🌪️ Spin Me Around!
-                        </button>
-                        <button style={styles.button} onClick={changeNumbers} disabled={isChangingNumbers}>
-                            🎲 Change Numbers!
-                        </button>
-                        <button style={styles.button} onClick={changeMessage}>
-                            💬 Say Something!
-                        </button>
-                    </div> */}
+                    </div>
 
                     <div ref={mountRef} style={styles.canvasContainer} />
                 </>
