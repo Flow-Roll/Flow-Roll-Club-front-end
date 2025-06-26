@@ -1,1 +1,6 @@
-//This is for the Flow FCL.js functions to interact with the smart contracts with the flow wallet
+import * as fcl from "@onflow/fcl";
+
+fcl.config({
+    "discovery.wallet": "https://fcl-discovery.onflow.org/testnet/authn", // Endpoint set to Testnet
+    "accessNode.api": "https://rest-testnet.onflow.org"
+})
