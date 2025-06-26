@@ -530,8 +530,9 @@ const DixyDiceAssistant = () => {
 
             {!isStarted ? (
                 <div style={styles.intro as any}>
-                    <h1 style={styles.introTitle}>Meet Dixy!</h1>
+                    <h1 style={styles.introTitle}>Meet Dixy and let's play!</h1>
                     <p style={styles.introText}>Your friendly dice assistant is ready to help!</p>
+                    <p>You agree to our terms and conditions.</p>
                     <button style={styles.button} onClick={startExperience}>
                         Let's Roll! 🎲
                     </button>
