@@ -8,7 +8,7 @@ const NETWORKDETAILS = {
     url: "https://testnet.evm.nodes.onflow.org"
 }
 
-export function getJsonRpcProvider(chainId: string): any {
+export function getJsonRpcProvider(): any {
     return new JsonRpcProvider(NETWORKDETAILS.url);
 }
 

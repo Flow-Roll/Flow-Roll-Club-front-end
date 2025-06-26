@@ -1,12 +1,3 @@
-import React from 'react';
-// import {
-//   Dice1,
-//   TrendingUp,
-//   TrendingDown,
-//   User,
-//   Clock
-// } from 'lucide-react';
-
 const DiceRollHistory = () => {
     // Sample data for previous dice rolls
     const rollHistory = [
@@ -67,9 +58,9 @@ const DiceRollHistory = () => {
         }
     ];
 
-    const getDiceTotal = (dice) => dice.reduce((sum, die) => sum + die, 0);
+    const getDiceTotal = (dice: any) => dice.reduce((sum: any, die: any) => sum + die, 0);
 
-    const getPlayerColor = (player) => {
+    const getPlayerColor = (player: any) => {
         const colors = ['bg-blue-500', 'bg-green-500', 'bg-orange-500', 'bg-purple-500', 'bg-red-500'];
         return colors[player.charCodeAt(0) % colors.length];
     };

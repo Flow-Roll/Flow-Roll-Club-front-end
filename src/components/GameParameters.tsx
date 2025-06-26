@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { DollarSign, Dices, Target } from 'lucide-react';
 
 export default function DiceGameParameters() {
@@ -8,7 +8,7 @@ export default function DiceGameParameters() {
         winOdds: 16.67 // Default 1 in 6 chance (like rolling a specific number)
     });
 
-    const handleParameterChange = (param, value) => {
+    const handleParameterChange = (param: any, value: any) => {
         if (param === 'winOdds') {
             setParameters(prev => ({
                 ...prev,

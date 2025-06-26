@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { useNavigate } from 'react-router';
 
 export default function FlowRollClubTitle() {
@@ -15,8 +15,8 @@ export default function FlowRollClubTitle() {
         }, 800);
     };
 
-    const getDiceDots = (value) => {
-        const dotPositions = {
+    const getDiceDots = (value: any) => {
+        const dotPositions: any = {
             1: ['center'],
             2: ['top-left', 'bottom-right'],
             3: ['top-left', 'center', 'bottom-right'],
@@ -31,6 +31,7 @@ export default function FlowRollClubTitle() {
     return (
         <div className="flex flex-col items-center justify-center min-h-screen bg-white p-8">
             <div className="text-center">
+                <h1>UNDER CONSTRUCTION</h1>
                 <h1 className="text-6xl md:text-8xl font-black text-gray-800 mb-8 transform hover:scale-105 transition-transform duration-300">
                     <span className="inline-block animate-bounce" style={{ animationDelay: '0s' }}>W</span>
                     <span className="inline-block animate-bounce" style={{ animationDelay: '0.1s' }}>e</span>
@@ -59,7 +60,7 @@ export default function FlowRollClubTitle() {
                     >
                         <div className="absolute inset-2 grid grid-cols-3 grid-rows-3 gap-1">
                             {Array.from({ length: 9 }).map((_, index) => {
-                                const positions = {
+                                const positions: any = {
                                     'top-left': 0,
                                     'top-right': 2,
                                     'middle-left': 3,
@@ -97,8 +98,8 @@ export default function FlowRollClubTitle() {
                         <button className="px-8 py-4 text-lg font-bold text-white rounded-xl shadow-lg transform transition-all duration-300 hover:scale-105 hover:shadow-xl active:scale-95 cursor-pointer"
                             style={{ backgroundColor: '#00fdc8' }}
                             onClick={() => navigate("/mint")}
-                            onMouseEnter={(e) => e.target.style.backgroundColor = '#00e6b3'}
-                            onMouseLeave={(e) => e.target.style.backgroundColor = '#00fdc8'}>
+                            onMouseEnter={(e: any) => e.target.style.backgroundColor = '#00e6b3'}
+                            onMouseLeave={(e: any) => e.target.style.backgroundColor = '#00fdc8'}>
                             <div className="flex flex-col items-center">
                                 <span className="text-xl">🎲 Mint</span>
                                 <span className="text-base">Create your own Dice Game NFT</span>
@@ -106,11 +107,11 @@ export default function FlowRollClubTitle() {
                             </div>
                         </button>
 
-                        <button className="px-8 py-4 text-lg font-bold text-white rounded-xl shadow-lg transform transition-all duration-300 hover:scale-105 hover:shadow-xl active:scale-95"
+                        <button className="px-8 py-4 text-lg font-bold text-white rounded-xl shadow-lg transform transition-all duration-300 hover:scale-105 hover:shadow-xl active:scale-95 cursor-pointer"
                             style={{ backgroundColor: '#6366f1' }}
                             onClick={() => navigate("/games")}
-                            onMouseEnter={(e) => e.target.style.backgroundColor = '#5855eb'}
-                            onMouseLeave={(e) => e.target.style.backgroundColor = '#6366f1'}>
+                            onMouseEnter={(e: any) => e.target.style.backgroundColor = '#5855eb'}
+                            onMouseLeave={(e: any) => e.target.style.backgroundColor = '#6366f1'}>
                             <div className="flex flex-col items-center">
                                 <span className="text-xl">🎯 Find Games</span>
                                 <span className="text-base">Join existing dice games</span>

@@ -1,7 +1,7 @@
-import React, { useState } from 'react';
-import { Plus, DollarSign, Wallet, TrendingUp, Award } from 'lucide-react';
+import { useState } from 'react';
+import { Plus, DollarSign, TrendingUp, Award } from 'lucide-react';
 
-const PrizePoolDeposit = (props: { gameId : any }) => {
+const PrizePoolDeposit = (props: { gameId: any }) => {
     console.log(props)
     const [prizePool, setPrizePool] = useState(2450.75);
     const [depositAmount, setDepositAmount] = useState('');

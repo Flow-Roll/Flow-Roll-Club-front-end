@@ -7,9 +7,9 @@ import CloseIcon from '@mui/icons-material/Close';
 import IconButton from '@mui/material/IconButton';
 import Box from '@mui/material/Box';
 import GamePage from "./pages/GamePage";
-import MintPage from "./pages/MintPage";
 import LandingPage from "./pages/LandingPage";
 import WalletSelectHeader from "./components/WalletSelectHeader";
+
 
 function App() {
 
@@ -22,7 +22,12 @@ function App() {
     setSnackbarMessage(msg);
   }
 
-  const closeSnackbar = (event: React.SyntheticEvent | Event, reason?: string) => {
+  React.useEffect(() => {
+    openSnackbar("Welcome to Flow Roll Club")
+  }, [])
+
+
+  const closeSnackbar = (_event: React.SyntheticEvent | Event, reason?: string) => {
     if (reason === 'clickaway') {
       return;
     }
@@ -46,9 +51,9 @@ function App() {
     return (<BrowserRouter>
       <Routes>
         <Route path="/" element={<LandingPage></LandingPage>}></Route>
-        <Route path="/mint" element={<MintPage></MintPage>}></Route>
+        {/* <Route path="/mint" element={<MintPage></MintPage>}></Route> */}
         <Route path={"/game/:id"} element={<GamePage></GamePage>}></Route>
-        <Route path="games" element={<div>Games page</div>}></Route>
+        {/* <Route path="games" element={<GamesPage></GamesPage>}></Route> */}
         <Route path="*" element={<GamblingQuotes404></GamblingQuotes404>}></Route>
       </Routes>
     </BrowserRouter>)

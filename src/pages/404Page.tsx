@@ -1,6 +1,6 @@
 import { Box, Typography } from "@mui/material";
 import { useState, useEffect } from 'react';
-import {  TrendingDown, Coins } from 'lucide-react';
+import {  TrendingDown } from 'lucide-react';
 
 export function NotFoundPage() {
 
@@ -55,11 +55,6 @@ export const GamblingQuotes404 = () => {
         const randomIndex = Math.floor(Math.random() * quotes.length);
         setCurrentQuote(quotes[randomIndex]);
     }, []);
-
-    const getNewQuote = () => {
-        const randomIndex = Math.floor(Math.random() * quotes.length);
-        setCurrentQuote(quotes[randomIndex]);
-    };
 
     return (
         <div className="min-h-screen bg-gradient-to-br flex items-center justify-center p-4">

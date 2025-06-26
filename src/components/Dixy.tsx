@@ -1,19 +1,19 @@
-import React, { useRef, useEffect, useState } from 'react';
+import { useRef, useEffect, useState } from 'react';
 import * as THREE from 'three';
 
 const DixyDiceAssistant = () => {
-    const mountRef = useRef(null);
-    const sceneRef = useRef(null);
-    const diceRef = useRef(null);
-    const animationIdRef = useRef(null);
-    const rendererRef = useRef(null);
-    const cameraRef = useRef(null);
+    const mountRef = useRef<any>(null);
+    const sceneRef = useRef<any>(null);
+    const diceRef = useRef<any>(null);
+    const animationIdRef = useRef<any>(null);
+    const rendererRef = useRef<any>(null);
+    const cameraRef = useRef<any>(null);
 
     const [isStarted, setIsStarted] = useState(false);
     const [isRolling, setIsRolling] = useState(false);
-    const [currentMessage, setCurrentMessage] = useState(0);
-    const [minValue, setMinValue] = useState(1);
-    const [maxValue, setMaxValue] = useState(6);
+    // const [currentMessage, setCurrentMessage] = useState(0);
+    const [minValue] = useState(1);
+    const [maxValue] = useState(6);
     const [currentNumbers, setCurrentNumbers] = useState([1, 2, 3, 4, 5, 6]);
     const [isChangingNumbers, setIsChangingNumbers] = useState(false);
     const [isMobile, setIsMobile] = useState(false);
@@ -116,11 +116,11 @@ const DixyDiceAssistant = () => {
         };
     };
 
-    const createDiceFace = (number) => {
+    const createDiceFace = (number: any) => {
         const canvas = document.createElement('canvas');
         canvas.width = 256;
         canvas.height = 256;
-        const ctx = canvas.getContext('2d');
+        const ctx = canvas.getContext('2d') as any;
 
         // Face background
         ctx.fillStyle = '#ffffff';
@@ -142,14 +142,14 @@ const DixyDiceAssistant = () => {
         return new THREE.MeshLambertMaterial({ map: texture });
     };
 
-    const updateDiceNumbers = (numbers) => {
+    const updateDiceNumbers = (numbers: any) => {
         if (!diceRef.current) return;
 
-        const materials = numbers.map(num => createDiceFace(num));
+        const materials = numbers.map((num: any) => createDiceFace(num));
         diceRef.current.material = materials;
     };
 
-    const createDice = (scene) => {
+    const createDice = (scene: any) => {
         const geometry = new THREE.BoxGeometry(2, 2, 2);
 
         // Create initial materials with current numbers
@@ -190,17 +190,17 @@ const DixyDiceAssistant = () => {
         return numbers;
     };
 
-    const updateRange = () => {
-        if (minValue >= maxValue) {
-            setSpeechText("Oops! Min value should be less than max value! 🤔");
-            return;
-        }
+    // const updateRange = () => {
+    //     if (minValue >= maxValue) {
+    //         setSpeechText("Oops! Min value should be less than max value! 🤔");
+    //         return;
+    //     }
 
-        const newNumbers = generateRandomNumbers();
-        setCurrentNumbers(newNumbers);
-        updateDiceNumbers(newNumbers);
-        setSpeechText(`Great! Now I can show numbers from ${minValue} to ${maxValue}! 🎯✨`);
-    };
+    //     const newNumbers = generateRandomNumbers();
+    //     setCurrentNumbers(newNumbers);
+    //     updateDiceNumbers(newNumbers);
+    //     setSpeechText(`Great! Now I can show numbers from ${minValue} to ${maxValue}! 🎯✨`);
+    // };
 
     const changeNumbers = () => {
         if (isChangingNumbers) return;
@@ -266,53 +266,53 @@ const DixyDiceAssistant = () => {
         rollAnimation();
     };
 
-    const bounceAnimation = () => {
-        if (!diceRef.current) return;
+    // const bounceAnimation = () => {
+    //     if (!diceRef.current) return;
 
-        const startTime = Date.now();
-        const duration = 1500;
+    //     const startTime = Date.now();
+    //     const duration = 1500;
 
-        const bounce = () => {
-            const elapsed = Date.now() - startTime;
-            const progress = elapsed / duration;
+    //     const bounce = () => {
+    //         const elapsed = Date.now() - startTime;
+    //         const progress = elapsed / duration;
 
-            if (progress < 1 && diceRef.current) {
-                const bounceHeight = Math.abs(Math.sin(progress * Math.PI * 3)) * 2;
-                diceRef.current.position.y = 1 + bounceHeight;
-                requestAnimationFrame(bounce);
-            }
-        };
+    //         if (progress < 1 && diceRef.current) {
+    //             const bounceHeight = Math.abs(Math.sin(progress * Math.PI * 3)) * 2;
+    //             diceRef.current.position.y = 1 + bounceHeight;
+    //             requestAnimationFrame(bounce);
+    //         }
+    //     };
 
-        bounce();
-        setSpeechText("Wheee! Look at me bounce! I feel like I'm flying! 🦘✨");
-    };
+    //     bounce();
+    //     setSpeechText("Wheee! Look at me bounce! I feel like I'm flying! 🦘✨");
+    // };
 
-    const spinAnimation = () => {
-        if (!diceRef.current) return;
+    // const spinAnimation = () => {
+    //     if (!diceRef.current) return;
 
-        const startTime = Date.now();
-        const duration = 3000;
-        const initialRotationY = diceRef.current.rotation.y;
+    //     const startTime = Date.now();
+    //     const duration = 3000;
+    //     const initialRotationY = diceRef.current.rotation.y;
 
-        const spin = () => {
-            const elapsed = Date.now() - startTime;
-            const progress = elapsed / duration;
+    //     const spin = () => {
+    //         const elapsed = Date.now() - startTime;
+    //         const progress = elapsed / duration;
 
-            if (progress < 1 && diceRef.current) {
-                diceRef.current.rotation.y = initialRotationY + progress * Math.PI * 6;
-                requestAnimationFrame(spin);
-            }
-        };
+    //         if (progress < 1 && diceRef.current) {
+    //             diceRef.current.rotation.y = initialRotationY + progress * Math.PI * 6;
+    //             requestAnimationFrame(spin);
+    //         }
+    //     };
 
-        spin();
-        setSpeechText("Spinning around and around! I'm getting dizzy but it's so much fun! 🌪️😵‍💫");
-    };
+    //     spin();
+    //     setSpeechText("Spinning around and around! I'm getting dizzy but it's so much fun! 🌪️😵‍💫");
+    // };
 
-    const changeMessage = () => {
-        const nextIndex = (currentMessage + 1) % messages.length;
-        setCurrentMessage(nextIndex);
-        setSpeechText(messages[nextIndex]);
-    };
+    // const changeMessage = () => {
+    //     const nextIndex = (currentMessage + 1) % messages.length;
+    //     setCurrentMessage(nextIndex);
+    //     setSpeechText(messages[nextIndex]);
+    // };
 
     const startExperience = () => {
         setIsStarted(true);
@@ -498,7 +498,7 @@ const DixyDiceAssistant = () => {
     };
 
     return (
-        <div style={styles.container}>
+        <div style={styles.container as any}>
             <style>
                 {`
           @keyframes gradientShift {
@@ -529,7 +529,7 @@ const DixyDiceAssistant = () => {
             </style>
 
             {!isStarted ? (
-                <div style={styles.intro}>
+                <div style={styles.intro as any}>
                     <h1 style={styles.introTitle}>Meet Dixy!</h1>
                     <p style={styles.introText}>Your friendly dice assistant is ready to help!</p>
                     <button style={styles.button} onClick={startExperience}>
@@ -538,45 +538,17 @@ const DixyDiceAssistant = () => {
                 </div>
             ) : (
                 <>
-                    <div style={styles.ui}>
+                    <div style={styles.ui as any}>
                         <h2 style={styles.uiTitle}>🎲 Dixy is your Dice Assistant</h2>
                         <p style={styles.uiSubtitle}>Place a bet, roll a number and Dixy reacts to smart contract events in real time.</p>
                     </div>
 
-                    <div style={styles.speechBubble}>
+                    <div style={styles.speechBubble as any}>
                         <p style={{ margin: 0 }}>{speechText}</p>
-                        <div style={styles.speechBubbleArrow}></div>
+                        <div style={styles.speechBubbleArrow as any}></div>
                     </div>
 
-                    {/* <div style={styles.rangeControls}>
-                        <div style={styles.rangeGroup}>
-                            <label style={styles.label}>Min: </label>
-                            <input
-                                type="number"
-                                value={minValue}
-                                onChange={(e) => setMinValue(parseInt(e.target.value) || 1)}
-                                style={styles.input}
-                                min="1"
-                                max="999"
-                            />
-                        </div>
-                        <div style={styles.rangeGroup}>
-                            <label style={styles.label}>Max: </label>
-                            <input
-                                type="number"
-                                value={maxValue}
-                                onChange={(e) => setMaxValue(parseInt(e.target.value) || 6)}
-                                style={styles.input}
-                                min="2"
-                                max="999"
-                            />
-                        </div>
-                        <button style={styles.smallButton} onClick={updateRange}>
-                            🎯 Update Range
-                        </button>
-                    </div> */}
-
-                    <div style={styles.controls}>
+                    <div style={styles.controls as any}>
                         <button style={styles.button} onClick={changeNumbers} disabled={isRolling}>
                             💸 BET
                         </button>
@@ -585,7 +557,7 @@ const DixyDiceAssistant = () => {
                         </button>
                     </div>
 
-                    <div ref={mountRef} style={styles.canvasContainer} />
+                    <div ref={mountRef} style={styles.canvasContainer as any} />
                 </>
             )}
         </div>
