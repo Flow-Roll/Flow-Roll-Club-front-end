@@ -9,6 +9,8 @@ import Box from '@mui/material/Box';
 import GamePage from "./pages/GamePage";
 import LandingPage from "./pages/LandingPage";
 import WalletSelectHeader from "./components/WalletSelectHeader";
+import MintPage from "./pages/MintPage";
+import { GamesPage } from "./pages/GamesPage";
 
 
 function App() {
@@ -51,9 +53,9 @@ function App() {
     return (<BrowserRouter>
       <Routes>
         <Route path="/" element={<LandingPage></LandingPage>}></Route>
-        {/* <Route path="/mint" element={<MintPage></MintPage>}></Route> */}
+        <Route path="/mint" element={<MintPage></MintPage>}></Route>
         <Route path={"/game/:id"} element={<GamePage></GamePage>}></Route>
-        {/* <Route path="games" element={<GamesPage></GamesPage>}></Route> */}
+        <Route path="games" element={<GamesPage></GamesPage>}></Route>
         <Route path="*" element={<GamblingQuotes404></GamblingQuotes404>}></Route>
       </Routes>
     </BrowserRouter>)
