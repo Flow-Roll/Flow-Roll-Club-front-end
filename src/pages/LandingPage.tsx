@@ -1,14 +1,11 @@
+import { Stack } from "@mui/material";
 
-//TODO: Should show a big welcome sign.
-
-import WalletSelectHeader from "../components/WalletSelectHeader";
-
-//Dynamically create buttons, If minting is available link to mint page
-//Have a "discover games" button
-
+import FlowRollClubTitle from "../components/WelcomeComponent";
 
 export default function LandingPage() {
-    return <div>
-        <WalletSelectHeader></WalletSelectHeader>
-    </div>
+    return <Stack height={"70vh"} direction={"column"} justifyContent="space-between">
+        <div>
+            <FlowRollClubTitle></FlowRollClubTitle>
+        </div>
+    </Stack>
 }
