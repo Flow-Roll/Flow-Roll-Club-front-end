@@ -360,7 +360,7 @@ async function fundPrizePoolERC20(contract: any, amount: BigInt) {
  */
 
 async function betFlow(contract: any, bet: number) {
-    return await contract.rollDiceFlow(bet);
+    return await contract.betFlow(bet);
 }
 
 /**
@@ -372,7 +372,7 @@ async function betFlow(contract: any, bet: number) {
  */
 
 async function betERC20(contract: any, betAmount: BigInt, bet: number) {
-    return await contract.rollDiceERC20(betAmount, bet);
+    return await contract.betERC20(betAmount, bet);
 }
 
 /**
