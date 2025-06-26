@@ -1,3 +1,7 @@
+import DiceGameRow from "../components/DiceGameRow";
+
 export function GamesPage() {
-    return <div>Games</div>
- }
+    return <div>
+        <DiceGameRow></DiceGameRow>
+    </div>
+}
