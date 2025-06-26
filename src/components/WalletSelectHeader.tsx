@@ -35,6 +35,7 @@ export default function WalletSelectHeader() {
                         color="inherit"
                         aria-label="menu"
                         sx={{ mr: 2 }}
+                        onClick={() => window.location.href = "/"}
                     >
                         <img src={FRCLogo} alt="Flow Roll Club Logo" width={"70px"} />
                     </IconButton>
