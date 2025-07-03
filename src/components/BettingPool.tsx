@@ -21,12 +21,12 @@ const PrizePoolDeposit = (props: { gameId: any }) => {
     return (
         <div className="max-w-4xl mx-auto p-6">
             {/* Main Prize Pool Display */}
-            <div className="bg-gradient-to-br from-blue-50 to-indigo-100 rounded-2xl p-8 shadow-lg border border-blue-200">
+            <div className="bg-gradient-to-br  rounded-2xl p-8 shadow-lg border ">
                 <div className="flex items-center justify-between">
                     {/* Prize Pool Info */}
                     <div className="flex items-center space-x-4">
-                        <div className="bg-blue-600 p-3 rounded-full">
-                            {/* <Wallet className="w-8 h-8 text-white" /> */}
+                        <div className=" rounded-full">
+
                         </div>
                         <div>
                             <h2 className="text-lg font-medium text-gray-700 mb-1">Current Prize Pool</h2>
@@ -54,10 +54,10 @@ const PrizePoolDeposit = (props: { gameId: any }) => {
                     {/* Deposit Button */}
                     <button
                         onClick={() => setIsDepositModalOpen(true)}
-                        className="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-6 rounded-lg shadow-md transition-all duration-200 hover:shadow-lg hover:-translate-y-0.5 flex items-center space-x-2"
+                        className="cursor-pointer font-semibold py-3 px-6 rounded-lg shadow-md transition-all duration-200 hover:shadow-lg hover:-translate-y-0.5 flex items-center space-x-2"
                     >
                         <Plus className="w-5 h-5" />
-                        {/* <span>Deposit</span> */}
+                        
                     </button>
                 </div>
             </div>
@@ -79,7 +79,7 @@ const PrizePoolDeposit = (props: { gameId: any }) => {
                         {/* Current Pool Display */}
                         <div className="bg-gray-50 rounded-lg p-4 mb-6">
                             <p className="text-sm text-gray-600 mb-1">Current Prize Pool</p>
-                            <p className="text-2xl font-bold text-blue-600">
+                            <p className="text-2xl font-bold ">
                                 ${prizePool.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                             </p>
                         </div>
