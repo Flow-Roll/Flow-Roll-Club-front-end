@@ -1,4 +1,5 @@
+import AnimatedBettingForm from "../components/GameConfiguration"
 
 export default function MintPage() {
-    return <div><div>Mint</div></div>
+    return <div><AnimatedBettingForm></AnimatedBettingForm></div>
 }
