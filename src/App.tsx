@@ -53,8 +53,8 @@ function App() {
     return (<BrowserRouter>
       <Routes>
         <Route path="/" element={<LandingPage></LandingPage>}></Route>
-        <Route path="/mint" element={<MintPage></MintPage>}></Route>
-        <Route path={"/game/:id"} element={<GamePage></GamePage>}></Route>
+        <Route path="mint" element={<MintPage></MintPage>}></Route>
+        <Route path={"games/:id"} element={<GamePage></GamePage>}></Route>
         <Route path="games" element={<GamesPage></GamesPage>}></Route>
         <Route path="*" element={<GamblingQuotes404></GamblingQuotes404>}></Route>
       </Routes>
