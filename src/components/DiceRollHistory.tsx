@@ -60,10 +60,6 @@ const DiceRollHistory = () => {
 
     const getDiceTotal = (dice: any) => dice.reduce((sum: any, die: any) => sum + die, 0);
 
-    const getPlayerColor = (player: any) => {
-        const colors = ['bg-blue-500', 'bg-green-500', 'bg-orange-500', 'bg-purple-500', 'bg-red-500'];
-        return colors[player.charCodeAt(0) % colors.length];
-    };
 
     return (
         <div className="max-w-7xl mx-auto py-6 px-4">
@@ -86,8 +82,10 @@ const DiceRollHistory = () => {
                             <div className="p-6">
                                 {/* Player Info */}
                                 <div className="flex items-center mb-4">
-                                    <div className={`w-8 h-8 rounded-full ${getPlayerColor(roll.player)} flex items-center justify-center mr-3`}>
+                                    <div className={`w-8 h-8 rounded-full flex items-center justify-center mr-3`}>
                                         {/* <User className="w-4 h-4 text-white" /> */}
+                                        🎲
+                                        
                                     </div>
                                     <div>
                                         <h3 className="font-semibold text-lg text-gray-900">
@@ -153,7 +151,7 @@ const DiceRollHistory = () => {
                                         Prize Pool Change
                                     </span>
                                     <div className="flex items-center">
-                                  
+
                                         <span className={`text-sm font-bold ${roll.prizePoolChange > 0 ? 'text-green-600' : 'text-red-600'
                                             }`}>
                                             {roll.prizePoolChange > 0 ? '+' : ''}${roll.prizePoolChange}
