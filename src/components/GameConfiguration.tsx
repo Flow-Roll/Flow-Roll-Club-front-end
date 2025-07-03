@@ -1,14 +1,28 @@
 import { useState } from 'react';
-import { Dice1, Coins, Trophy, Settings, Zap, Target } from 'lucide-react';
+import { Dice1, Coins, Trophy, Settings, Zap, Target, Badge, ArrowDownCircle, ArrowUpCircle, Shuffle, Divide } from 'lucide-react';
 
-export default function AnimatedBettingForm() {
+export default function AnimatedBettingForm(props: { openSnackbar: CallableFunction }) {
 
     //The Mint Cost USD and Mint cost flow are fetched from the smart contract
     //They should be updated when a new coupon code is entered
     const [mintCostUSD, setMintCostUSD] = useState(0);
-    const [mintCostFlow,setMintCostFlow] = useState(0);
+    const [mintCostFlow, setMintCostFlow] = useState(0);
+
+    type FormField =
+        | "name"
+        | "couponCode"
+        | "tokenAddress"
+        | "winnerPrizeShare"
+        | "diceRollCost"
+        | "houseEdge"
+        | "revealCompensation"
+        | "betMin"
+        | "betMax"
+        | "betType"
+        | "divider";
 
     const [formData, setFormData] = useState({
+        name: "",
         couponCode: '',
         tokenAddress: '',
         winnerPrizeShare: 50,
@@ -21,7 +35,8 @@ export default function AnimatedBettingForm() {
         divider: 2
     });
 
-    const [errorDisplay, setErrorDisplay] = useState({
+    const errorDisplayDefault = {
+        nameError: "",
         couponError: "",
         tokenAddressError: "",
         winnerPrizeShareError: "",
@@ -31,9 +46,12 @@ export default function AnimatedBettingForm() {
         betMinError: "",
         betMaxError: "",
         dividerError: ""
-    })
+    }
+
+    const [errorDisplay, setErrorDisplay] = useState(errorDisplayDefault)
 
     type ErrorField =
+        "nameError" |
         "couponError" |
         "tokenAddressError" |
         "winnerPrizeShareError" |
@@ -44,25 +62,65 @@ export default function AnimatedBettingForm() {
         "betMaxError" |
         "dividerError"
 
-    const [focusedField, setFocusedField] = useState(null);
+    const [focusedField, setFocusedField] = useState<any>(null);
 
-    const handleInputChange = (field, value) => {
+    const handleInputChange = (field: FormField, value: string | number) => {
         setFormData(prev => ({
             ...prev,
             [field]: value
         }));
     };
 
-    const handleSubmit = (e) => {
-        e.preventDefault();
 
-        console.log('Form submitted:', formData);
+
+    const handleSubmit = (e: any) => {
+        e.preventDefault();
+        //sets all the error fields back to empty
+        setErrorDisplay(errorDisplayDefault)
+        let errorOccured = false;
         // Add your form submission logic here
+        if (formData.name.length < 3) {
+            setErrorDisplay({ ...errorDisplay, nameError: "Name must be at least 3 characters long" })
+            errorOccured = true;
+        }
+
+        //Check if the name is a number, it must not be a number
+
+        const couponValid = false//TODO: eth call to check if coupon is valid
+
+
+        // const tokenAddressValid 
+        //If tokenaddress is empty, substiture with zeroAddress
+        //Else check what token is it and fetch the name and ticker
+
+        //Check that the winner prize share is within bounds
+
+        //Check that the diceRollCost is not empty and bigger than zero
+
+        //Check that the houseEdge is within bounds
+
+        //Check that the reveal compensation is within bounds
+
+        //Check that the bet min and max is within bounds
+
+        //Check that the divider is needed to be checked via bet Type
+
+        //Check if divider is correct
+
+        //Check if wallet is connected, if not prompt to connect
+
+        if (errorOccured) {
+            props.openSnackbar("There are errors in the form")
+            return;
+        }
+
+
+        //Submit a transaction to mint here and pay
 
     };
 
     function ShowError({ fieldName }: { fieldName: ErrorField }) {
-        return (errorDisplay[fieldName] == "" ? <div>
+        return (errorDisplay[fieldName] !== "" ? <div>
             <p className="text-red-600">{errorDisplay[fieldName]}</p>
         </div> : <div></div>)
     }
@@ -81,6 +139,27 @@ export default function AnimatedBettingForm() {
                     </div>
 
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        {/* Name */}
+                        <div className="col-span-1 md:col-span-2 shadow p-4">
+                            <label className="flex items-center  text-sm font-medium mb-2">
+                                <Badge className="w-4 h-4 mr-2" />
+                                Game name
+                            </label>
+                            <input
+                                type="text"
+                                value={formData.name}
+                                onChange={(e) => handleInputChange('name', e.target.value)}
+                                onFocus={() => setFocusedField('name')}
+                                onBlur={() => setFocusedField(null)}
+                                className={`w-full px-4 py-3   border rounded-lg   transition-all duration-300 ${focusedField === 'name'
+                                    ? 'border-purple-400 ring-4 ring-purple-400/20 transform scale-105'
+                                    : 'border-white/30 hover:border-white/50'
+                                    }`}
+                                placeholder="Enter the name of the game"
+                            />
+                            <label className="text-sm font-medium">The name of the game is displayed when selecting games</label>
+                            <ShowError fieldName="nameError"></ShowError>
+                        </div>
                         {/* Coupon Code */}
                         <div className="col-span-1 md:col-span-2 shadow p-4">
                             <label className="flex items-center  text-sm font-medium mb-2">
@@ -219,6 +298,7 @@ export default function AnimatedBettingForm() {
                         {/* Bet Min */}
                         <div className="shadow p-4">
                             <label className=" /90 text-sm font-medium mb-2 block">
+                                <ArrowDownCircle className="w-4 h-4 mr-2" />
                                 Bet Min
                             </label>
                             <input
@@ -239,8 +319,9 @@ export default function AnimatedBettingForm() {
                         </div>
 
                         {/* Bet Max */}
-                        <div className="text-sm font-medium">
+                        <div className="shadow p-4">
                             <label className=" /90 text-sm font-medium mb-2 block">
+                                <ArrowUpCircle className="w-4 h-4 mr-2" />
                                 Bet Max
                             </label>
                             <input
@@ -263,6 +344,7 @@ export default function AnimatedBettingForm() {
                         {/* Bet Type */}
                         <div className="shadow p-4">
                             <label className=" text-sm font-medium mb-2 block">
+                                <Shuffle className="w-4 h-4 mr-2" />
                                 Bet Type
                             </label>
                             <select
@@ -287,6 +369,7 @@ export default function AnimatedBettingForm() {
 
                         <div className="shadow p-4">
                             <label className=" text-sm font-medium mb-2 block">
+                                <Divide className="w-4 h-4 mr-2" />
                                 Divider
                             </label>
                             <input
