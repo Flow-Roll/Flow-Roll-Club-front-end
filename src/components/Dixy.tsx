@@ -266,28 +266,9 @@ const DixyDiceAssistant = () => {
         rollAnimation();
     };
 
-    // const bounceAnimation = () => {
-    //     if (!diceRef.current) return;
 
-    //     const startTime = Date.now();
-    //     const duration = 1500;
 
-    //     const bounce = () => {
-    //         const elapsed = Date.now() - startTime;
-    //         const progress = elapsed / duration;
-
-    //         if (progress < 1 && diceRef.current) {
-    //             const bounceHeight = Math.abs(Math.sin(progress * Math.PI * 3)) * 2;
-    //             diceRef.current.position.y = 1 + bounceHeight;
-    //             requestAnimationFrame(bounce);
-    //         }
-    //     };
-
-    //     bounce();
-    //     setSpeechText("Wheee! Look at me bounce! I feel like I'm flying! 🦘✨");
-    // };
-
-    // const spinAnimation = () => {
+    // const _spinAnimation = () => {
     //     if (!diceRef.current) return;
 
     //     const startTime = Date.now();
@@ -306,12 +287,6 @@ const DixyDiceAssistant = () => {
 
     //     spin();
     //     setSpeechText("Spinning around and around! I'm getting dizzy but it's so much fun! 🌪️😵‍💫");
-    // };
-
-    // const changeMessage = () => {
-    //     const nextIndex = (currentMessage + 1) % messages.length;
-    //     setCurrentMessage(nextIndex);
-    //     setSpeechText(messages[nextIndex]);
     // };
 
     const startExperience = () => {
@@ -360,6 +335,7 @@ const DixyDiceAssistant = () => {
             top: isMobile ? '10px' : '20px',
             left: isMobile ? '10px' : '20px',
             zIndex: 100,
+
             color: 'black',
             textShadow: '2px 2px 4px rgba(0,0,0,0.5)',
             background: isMobile ? 'rgba(255,255,255,0.9)' : 'transparent',
@@ -527,7 +503,6 @@ const DixyDiceAssistant = () => {
           }
         `}
             </style>
-
             {!isStarted ? (
                 <div style={styles.intro as any}>
                     <h1 style={styles.introTitle}>Meet Dixy and let's play!</h1>
