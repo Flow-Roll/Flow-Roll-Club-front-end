@@ -89,7 +89,7 @@ export default function FlowRollClubTitle() {
                 </div>
 
                 <p className="text-xl md:text-2xl text-gray-600 font-medium tracking-wide">
-                    Roll into the fun! 🎲✨
+                    Tokenized and Perpetual Dice Games. Trustless and Verifiable 🎲✨
                 </p>
 
                 <div className="mt-8 flex flex-col items-center gap-4">
