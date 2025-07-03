@@ -1,5 +1,6 @@
 import { createAvatar } from '@dicebear/core';
 import { shapes } from '@dicebear/collection';
+import { useNavigate } from 'react-router';
 
 const diceGames = [
   {
@@ -29,8 +30,8 @@ const diceGames = [
     rollUnder: 70,
     payout: "1.43x",
   },
-   {
-    id: 3,
+  {
+    id: 4,
     title: "Lucky 8",
     prizePool: "$750",
     totalBets: 200,
@@ -38,8 +39,8 @@ const diceGames = [
     rollUnder: 70,
     payout: "1.43x",
   },
-   {
-    id: 3,
+  {
+    id: 5,
     title: "Lucky 9",
     prizePool: "$750",
     totalBets: 200,
@@ -47,8 +48,8 @@ const diceGames = [
     rollUnder: 70,
     payout: "1.43x",
   },
-   {
-    id: 3,
+  {
+    id: 6,
     title: "Lucky 37",
     prizePool: "$750",
     totalBets: 200,
@@ -56,23 +57,25 @@ const diceGames = [
     rollUnder: 70,
     payout: "1.43x",
   },
-   {
-    id: 3,
+  {
+    id: 7,
     title: "Lucky 67",
     prizePool: "$750",
     totalBets: 200,
     betAmount: "$5",
     rollUnder: 70,
     payout: "1.43x",
-  },  
+  },
 ];
 
 
-const DiceGameCard = ({ game }) => {
+const DiceGameCard = ({ game, id }) => {
+
+  const navigate = useNavigate();
   const avatar = createAvatar(shapes, {
     seed: game.title,
     backgroundColor: [],
-   shape1Color: ["#00fdc8"]
+    shape1Color: ["#00fdc8"]
     // ... other options
   });
 
@@ -85,15 +88,18 @@ const DiceGameCard = ({ game }) => {
   const backgroundImage = `url("data:image/svg+xml,${encodedSvg}")`;
 
   return (
-    <div 
-    // style={{ backgroundColor: "#CCFFF1", }}
-     className="cursor-pointer bg-gradient-to-br text-black rounded-xl shadow-lg p-5 min-w-[250px] transition-transform transform hover:scale-105 hover:shadow-2xl duration-300 ease-in-out">
-      <div className="relative w-full h-"></div>
+    <div
+      // style={{ backgroundColor: "#CCFFF1", }}
+      className="cursor-pointer bg-gradient-to-br text-black rounded-xl shadow-lg p-5 min-w-[250px] transition-transform transform hover:scale-105 hover:shadow-2xl duration-300 ease-in-out"
+      onClick={() => { navigate(`/games/${id}`) }}
+
+    >
+      <div className="relative w-full h-">{id}</div>
       <div
-        className="w-40 h-40 bg-no-repeat bg-center bg-contain shadow"
-        style={{ backgroundImage }}
+      // className="w-40 h-40 bg-no-repeat bg-center bg-contain shadow"
+      // style={{ backgroundImage }}
       >
-        <h3 className="text-xl font-semibold mb-2 p-2">{game.title}</h3>
+        <h3 className="text-xl font-semibold mb-2 p-2">🎲{game.title}</h3>
 
 
       </div>
@@ -129,7 +135,7 @@ const DiceGameRow = () => {
       <h2 className="text-2xl font-bold text-gray-800  mb-4">🎲 Dice Games</h2>
       <div className="flex flex-wrap gap-4 justify-start">
         {diceGames.map(game => (
-          <DiceGameCard key={game.id} game={game} />
+          <DiceGameCard key={game.id} game={game} id={game.id} />
         ))}
       </div>
     </div>
