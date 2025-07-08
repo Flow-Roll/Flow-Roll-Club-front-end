@@ -17,6 +17,10 @@ export async function fetchAbi(at: string) {
     return res.json();
 }
 
+export async function getContractOnlyView(provider: any, at: string, abiPath: string): Promise<any> {
+    const artifact = await fetchAbi(abiPath)
+    return new Contract(at, artifact.abi, provider)
+}
 
 export async function getContract(provider: any, at: string, abiPath: string): Promise<any> {
     const artifact = await fetchAbi(abiPath);
