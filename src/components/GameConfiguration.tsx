@@ -1,12 +1,42 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Dice1, Coins, Trophy, Settings, Zap, Target, Badge, ArrowDownCircle, ArrowUpCircle, Shuffle, Divide } from 'lucide-react';
+import { fetchAbi, getContract, getContractOnlyView, getJsonRpcProvider, NFTSaleContract } from '../web3/ethers';
+import { CONTRACTADDRESSES } from '../web3/contracts';
+import { formatEther } from 'ethers';
+import DiceGameSummary from './DiceGameSummary';
 
 export default function AnimatedBettingForm(props: { openSnackbar: CallableFunction }) {
+
+    const [showedPage, setShowedPage] = useState(0);
+
 
     //The Mint Cost USD and Mint cost flow are fetched from the smart contract
     //They should be updated when a new coupon code is entered
     const [mintCostUSD, setMintCostUSD] = useState(0);
     const [mintCostFlow, setMintCostFlow] = useState(0);
+
+    useEffect(() => {
+
+        const fetchData = async () => {
+            const provider = getJsonRpcProvider();
+            const contract = await getContractOnlyView(provider, CONTRACTADDRESSES.NFTSale, "NFTSale.json")
+            const expectedPrice = await NFTSaleContract.view.getExpectedPriceInFlow(contract);
+            //TODO: This is the expected price that should be displayed as full price
+            console.log(formatEther(expectedPrice))
+
+        }
+        fetchData()
+    }, [])
+
+    async function getPriceWithCoupon(coupon: string) {
+        const provider = getJsonRpcProvider();
+        const contract = await getContractOnlyView(provider, CONTRACTADDRESSES.NFTSale, "NFTSale.json")
+        const expectedPrice = await NFTSaleContract.view.getExpectedPriceInFlow(contract);
+        const reducedPrice = await NFTSaleContract.view.getReducedPrice(contract, coupon, expectedPrice)
+        return formatEther(reducedPrice)
+    }
+
+    //TODO: a function to display commission info for the buyer 
 
     type FormField =
         | "name"
@@ -34,6 +64,11 @@ export default function AnimatedBettingForm(props: { openSnackbar: CallableFunct
         betType: 'userguess',
         divider: 2
     });
+
+    useEffect(() => {
+        //TODO: Each time the form data changes, I need to fetch some data
+        //e.g: when the coupon code is entered.
+    }, [formData])
 
     const errorDisplayDefault = {
         nameError: "",
@@ -130,7 +165,7 @@ export default function AnimatedBettingForm(props: { openSnackbar: CallableFunct
             <div className="relative">
                 <form
                     onSubmit={handleSubmit}
-                    className="  backdrop-blur-lg rounded-2xl p-8 shadow-2xl border border-white/20 max-w-2xl w-full transform transition-all duration-500 hover:scale-[1.02] hover:shadow-3xl"
+                    className="  backdrop-blur-lg rounded-2xl p-8 shadow-2xl border border-white/20 max-w-2xl w-full transform transition-all duration-500  hover:shadow-3xl"
                 >
                     <div className="text-center mb-8">
 
@@ -291,7 +326,7 @@ export default function AnimatedBettingForm(props: { openSnackbar: CallableFunct
                                 placeholder="0.001"
                                 step="0.001"
                             />
-                            <p className='text-sm font-medium'>The reward is sent to rollers, it keeps the game going. It's taken from each win or loss. The amount is always in the configured token. This is an incentive that keeps the game going. Example: When using Flow, 0.1 FLOW for rolling is an adequate reward because it exceeds the gas fee.</p>
+                            <p className='text-sm font-medium'>The reward is sent to rollers. It's taken from both win and loss bet deposit. The amount is always in the configured token. This is an incentive that keeps the game going. Example: When using Flow, 0.1 FLOW for rolling is an adequate reward because it exceeds the gas fee.</p>
                             <ShowError fieldName="revealCompensationError"></ShowError>
                         </div>
 
@@ -361,7 +396,7 @@ export default function AnimatedBettingForm(props: { openSnackbar: CallableFunct
                                 <option value="divisible" className="">Divisible By</option>
 
                             </select>
-                            <p className="text-sm font-medium">The bet type is either a user specified number or the user get a number that is divisible without a remainder by the supplied number</p>
+                            <p className="text-sm font-medium">The player has to guess the number rolled or roll a predetermined winner number which must be divisible by the divider.</p>
                         </div>
                     </div>
 
@@ -390,7 +425,25 @@ export default function AnimatedBettingForm(props: { openSnackbar: CallableFunct
                         </div>
                         : <div></div>}
 
-
+                    <DiceGameSummary
+                        name={formData.name}
+                        couponCode={formData.couponCode}
+                        couponPercentage={"10"}
+                        commissionPayment={"10"}
+                        paymentWithoutCoupon={4600}
+                        paymentWithCoupon={10}
+                        paymentCurrency={"Flow"}
+                        tokenAddress={formData.tokenAddress}
+                        winnerPrizeShare={formData.winnerPrizeShare}
+                        diceRollCost={formData.diceRollCost}
+                        houseEdge={formData.houseEdge}
+                        compensation={formData.revealCompensation}
+                        minimumBet={formData.betMin}
+                        maximumBet={formData.betMax}
+                        betType={formData.betType}
+                        divider={formData.divider}
+                        winningNumbersList={[1,2,3,4,5,5,5,5,5,5,5,5,5,5,5,5,,5,5,5,5]}
+                        ></DiceGameSummary>
 
                     {/* Submit Button */}
                     <button
