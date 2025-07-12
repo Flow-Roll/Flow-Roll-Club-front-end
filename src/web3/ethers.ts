@@ -40,9 +40,8 @@ export async function getContract(provider: any, at: string, abiPath: string): P
  * couponComission[coupon], number
  * couponUsesLeft[coupon] number
  */
-async function getCoupon(contract: any, coupon: string) {
-    //Returns   
-
+async function getCoupon(contract: any, coupon: string): Promise<[string, number, number, number]> {
+    
     return await contract.getCoupon(coupon);
 }
 /**
