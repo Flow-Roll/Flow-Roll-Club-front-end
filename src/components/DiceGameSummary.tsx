@@ -59,10 +59,7 @@ const DiceGameSummary = ({
                                 {formatPercentage(couponPercentage)}
                             </span>
                         </div>
-                        <div className="flex justify-between">
-                            <span className="text-gray-600">Commission:</span>
-                            <span className="font-semibold">{commissionPayment}</span>
-                        </div>
+
                     </div>
                 </div>
 
@@ -84,12 +81,6 @@ const DiceGameSummary = ({
                                 {paymentWithCoupon}
                             </span>
                         </div>
-                        <div className="flex justify-between">
-                            <span className="text-gray-600">Savings:</span>
-                            <span className="font-semibold text-green-600">
-                                {paymentWithoutCoupon - paymentWithCoupon}
-                            </span>
-                        </div>
                     </div>
                 </div>
 
@@ -97,7 +88,7 @@ const DiceGameSummary = ({
                 <div className="bg-gradient-to-r from-purple-50 to-pink-50 rounded-lg p-4 border border-purple-200">
                     <h2 className="text-lg font-semibold text-purple-800 mb-3 flex items-center gap-2">
                         <Coins className="w-5 h-5" />
-                        Token & Rewards
+                        Game Token & Rewards
                     </h2>
                     <div className="space-y-2">
                         <div className="flex justify-between">
@@ -151,7 +142,7 @@ const DiceGameSummary = ({
                                 <span className="font-semibold capitalize">User must Guess </span>
                             </div> : <div className="flex justify-between flex-wrap">
                                 <span className="text-gray-600">Winning numbers:</span>
-                                <span className="font-semibold capitalize overflow-scroll">{winningNumbersList.join(",")} </span>
+                                <span className="font-semibold capitalize overflow-scroll hide-scrollbar shadow p-4">{winningNumbersList.join(",")} </span>
                             </div>}
                     </div>
                 </div>
