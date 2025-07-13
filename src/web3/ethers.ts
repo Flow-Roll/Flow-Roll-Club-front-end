@@ -2,11 +2,8 @@
 
 //It is accessed using ethers.js using the json rpc provider for ethereum
 import { JsonRpcProvider, Contract } from "ethers";
+import { NETWORKDETAILS } from "./web3";
 
-const NETWORKDETAILS = {
-    name: "Flow EVM Testnet",
-    url: "https://testnet.evm.nodes.onflow.org"
-}
 
 export function getJsonRpcProvider(): any {
     return new JsonRpcProvider(NETWORKDETAILS.url);
@@ -387,6 +384,16 @@ async function revealDiceRoll(contract: any) {
     return await contract.revealDiceRoll();
 }
 
+/**
+ * 
+ * @param contract Checks the name of the ERC20 contract
+ * @returns 
+ */
+
+async function erc20Name(contract: any){
+    return await contract.name();
+}
+
 export const NFTSaleContract = {
     view: {
         getCoupon,
@@ -433,5 +440,11 @@ export const FLOWROLLGameContract = {
         betFlow,
         betERC20,
         revealDiceRoll
+    }
+}
+
+export const ERC20Contract = {
+    view: {
+        name: erc20Name
     }
 }
