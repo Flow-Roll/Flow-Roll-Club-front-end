@@ -11,10 +11,13 @@ import LandingPage from "./pages/LandingPage";
 import WalletSelectHeader from "./components/WalletSelectHeader";
 import MintPage from "./pages/MintPage";
 import { GamesPage } from "./pages/GamesPage";
+import { FlowProvider } from "@onflow/kit"
+import { FLOW_CONFIG } from "./web3/fcl";
 
+//@ts-ignore it is imported!
+import flowJSON from "../flow/flow.json"
 
 function App() {
-
   const [snackbarOpen, setSnackbarOpen] = React.useState(false);
 
   const [snackbarMessage, setSnackbarMessage] = React.useState("");
@@ -63,7 +66,17 @@ function App() {
 
 
   return (
-    <>
+    <FlowProvider
+      config={{
+        accessNodeUrl: FLOW_CONFIG.accessNodeURL,
+        flowNetwork: FLOW_CONFIG.flowNetwork as "testnet" | "mainnet",
+        appDetailTitle: FLOW_CONFIG.appDetailTitle,
+        appDetailDescription: FLOW_CONFIG.appDetailDescription,
+        appDetailIcon: FLOW_CONFIG.appDetailIcon,
+        appDetailUrl: FLOW_CONFIG.appDetailUrl
+      }}
+      flowJson={flowJSON}
+    >
       <Box>
         <WalletSelectHeader></WalletSelectHeader>
         {getRoutes()}
@@ -75,7 +88,7 @@ function App() {
         message={snackbarMessage}
         action={snackBarAction}
       />
-    </>
+    </FlowProvider>
   )
 }
 
