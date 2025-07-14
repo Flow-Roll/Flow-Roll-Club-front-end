@@ -4,7 +4,6 @@
 import { JsonRpcProvider, Contract } from "ethers";
 import { NETWORKDETAILS } from "./web3";
 
-
 export function getJsonRpcProvider(): any {
     return new JsonRpcProvider(NETWORKDETAILS.url);
 }
@@ -22,7 +21,10 @@ export async function getContractOnlyView(provider: any, at: string, abiPath: st
 export async function getContract(provider: any, at: string, abiPath: string): Promise<any> {
     const artifact = await fetchAbi(abiPath);
     const signer = provider.getSigner();
-    return new Contract(at, artifact.abi, signer);
+    const contract = new Contract(at, artifact.abi, signer);
+
+    return contract.connect(signer);
+
 }
 
 
@@ -38,7 +40,7 @@ export async function getContract(provider: any, at: string, abiPath: string): P
  * couponUsesLeft[coupon] number
  */
 async function getCoupon(contract: any, coupon: string): Promise<[string, number, number, number]> {
-    
+
     return await contract.getCoupon(coupon);
 }
 /**
@@ -116,7 +118,8 @@ async function buyNFT(
     diceRollCost: BigInt,
     houseEdge: number,
     revealCompensation: BigInt,
-    betParams: Array<number>[3]
+    betParams: number[],
+    meta: Object
 ) {
     return await contract.buyNFT(
         coupon,
@@ -126,7 +129,8 @@ async function buyNFT(
         diceRollCost,
         houseEdge,
         revealCompensation,
-        betParams
+        betParams,
+        meta
     )
 }
 
@@ -390,7 +394,7 @@ async function revealDiceRoll(contract: any) {
  * @returns 
  */
 
-async function erc20Name(contract: any){
+async function erc20Name(contract: any) {
     return await contract.name();
 }
 

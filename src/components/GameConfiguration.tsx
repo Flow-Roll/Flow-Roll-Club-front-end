@@ -1,29 +1,30 @@
 import { useEffect, useRef, useState } from 'react';
 import { Dice1, Coins, Trophy, Settings, Zap, Target, Badge, ArrowDownCircle, ArrowUpCircle, Shuffle, Divide } from 'lucide-react';
-import { ERC20Contract, fetchAbi, getContractOnlyView, getJsonRpcProvider, NFTSaleContract } from '../web3/ethers';
+import { ERC20Contract, FLOWROLLNFTContract, getContract, getContractOnlyView, getJsonRpcProvider, NFTSaleContract } from '../web3/ethers';
 import { CONTRACTADDRESSES } from '../web3/contracts';
-import { formatEther, parseEther, ZeroAddress } from 'ethers';
+import { formatEther, id, parseEther, ZeroAddress } from 'ethers';
 import DiceGameSummary from './DiceGameSummary';
 import DisplayOddsAndPrizePool from './DisplayOddsAndPrizePool';
-import { handleNetworkSelect } from '../web3/web3';
-import { useCrossVmBatchTransaction } from '@onflow/kit';
+
+import { getAddress } from 'viem'
+import { handleNetworkSelect, requestAccounts } from '../web3/web3';
 
 export default function AnimatedBettingForm(props: { openSnackbar: CallableFunction }) {
-    const { sendBatchTransaction, isPending, error, data: txId } = useCrossVmBatchTransaction({
-        mutation: {
-            onSuccess: (txId) => console.log("TX ID:", txId),
-        },
-    })
-
     const [mintCostFlow, setMintCostFlow] = useState("");
+    const [nftCount, setNFTCount] = useState("");
 
     useEffect(() => {
         const fetchData = async () => {
             const provider = getJsonRpcProvider();
-            const contract = await getContractOnlyView(provider, CONTRACTADDRESSES.NFTSale, "NFTSale.json")
-            const expectedPrice = await NFTSaleContract.view.getExpectedPriceInFlow(contract);
-            console.log(formatEther(expectedPrice))
+            const nftSaleContract = await getContractOnlyView(provider, CONTRACTADDRESSES.NFTSale, "NFTSale.json")
+            const expectedPrice = await NFTSaleContract.view.getExpectedPriceInFlow(nftSaleContract);
             setMintCostFlow(formatEther(expectedPrice))
+
+            const nftContract = await getContractOnlyView(provider, CONTRACTADDRESSES.FlowRollNFT, "FlowRollNFT.json")
+
+            const count = await FLOWROLLNFTContract.view.count(nftContract)
+
+            setNFTCount(count);
 
         }
         fetchData()
@@ -115,6 +116,20 @@ export default function AnimatedBettingForm(props: { openSnackbar: CallableFunct
         });
 
 
+    function getBetParams(formData: any) {
+
+        const betType = formData.betType === "userguess" ? 0 : formData.divider;
+
+        const min = parseInt(formData.betMin);
+        const max = parseInt(formData.betMax);
+
+        const betParams = Array<number>(3)
+        betParams[0] = min;
+        betParams[1] = max;
+        betParams[2] = betType;
+
+        return betParams;
+    }
 
 
     const handleInputChange = async (field: FormField, value: string | number) => {
@@ -172,7 +187,7 @@ export default function AnimatedBettingForm(props: { openSnackbar: CallableFunct
                 break;
             case "tokenAddress":
                 if (value !== "") {
-                    const contract = await getContractOnlyView(provider, value, "ERC20.json")
+                    const contract = await getContractOnlyView(provider, value as any, "ERC20.json")
                     const erc20Name = await ERC20Contract.view.name(contract).catch(err => {
                         props.openSnackbar("Failed to fetch token name")
                         return "";
@@ -252,7 +267,7 @@ export default function AnimatedBettingForm(props: { openSnackbar: CallableFunct
         }
     }
 
-    function isDecimal(value) {
+    function isDecimal(value: string) {
         return /^-?\d*\.\d+$/.test(value);
     }
 
@@ -357,91 +372,96 @@ export default function AnimatedBettingForm(props: { openSnackbar: CallableFunct
 
         //Check if wallet is connected, if not prompt to connect
 
-
         if (errorOccured) {
             props.openSnackbar("There are errors in the form. Scroll up to see")
             setErrorDisplay(display)
             return;
         }
 
+        const betParams = getBetParams(formData)
 
-
-        //Submit a transaction to mint here and pay
-        //Now connect 
-        //Check that your network is correct,
-        //Connect the wallet
-
-        const provider = await handleNetworkSelect((err: string) => console.error(err));
+        const provider = await handleNetworkSelect(props.openSnackbar)
 
         if (!provider) {
-            props.openSnackbar("Unable to connect to wallet")
+            props.openSnackbar("unable to connect wallet")
             return;
         }
+        await requestAccounts()
 
-        console.log(provider)
+        const signer = await provider.getSigner();
+        const address = await signer.getAddress()
 
-        //TODO Check if the parameters are used already, hash the data and compare on chain
-
+        const contract = await getContract(provider, CONTRACTADDRESSES.NFTSale, "NFTSale.json")
 
         if (couponDetails.isSet) {
             //Check if the address is used already
             //TODO: For that the wallet address is needed!
         }
 
-        
+        //TODO: Check if the game parameters are used already once
 
 
-        // const contract = await getContract(provider, CONTRACTADDRESSES.NFTSale, "NFTSale.json");
+        const getValue = () => {
+            if (couponDetails.isSet) {
+                return parseEther(couponDetails.paymentWithCoupon)
+            } else {
+                return parseEther(mintCostFlow)
+            }
+        }
 
-        // const signer = await provider.getSigner()
-
-        // const betType = formData.betType === "userguess" ? 0 : formData.divider;
-
-        // const min = parseInt(formData.betMin);
-        // const max = parseInt(formData.betMax);
-
-        // const betParams = Array<number>(3)
-        // betParams[0] = min;
-        // betParams[1] = max;
-        // betParams[2] = betType;
-
-        // console.log(contract)
-        // //TODO: Maybe use fcl_vibes instead?
-        // await NFTSaleContract.mutate.buyNFT(
-        //     contract,
-        //     formData.couponCode,
-        //     signer.address,
-        //     formData.tokenAddress,
-        //     formData.winnerPrizeShare,
-        //     parseEther(formData.diceRollCost),
-        //     formData.houseEdge,
-        //     parseEther(formData.revealCompensation),
-        //     betParams
-        // ).catch((err) => {
-        //     props.openSnackbar("Error: " + err.message)
-        // });
-
-        // const tokenAddress = formData.tokenAddress === "" ? ZeroAddress : formData.tokenAddress;
+        const getTokenAddress = () => {
+            if (tokenAddressName === "FLOW") {
+                return getAddress(ZeroAddress)
+            } else {
+                return getAddress(formData.tokenAddress)
+            }
+        }
 
 
-        // const sendTransaction = async () => {
-        //     const abi = await fetchAbi("NFTSale.json");
+        try {
+            //then buy the NFT        
+            const tx = await NFTSaleContract.mutate.buyNFT(
+                contract,
+                formData.couponCode,
+                address,
+                getTokenAddress(),
+                formData.winnerPrizeShare,
+                parseEther(formData.diceRollCost),
+                formData.houseEdge,
+                parseEther(formData.revealCompensation),
+                betParams,
+                { value: getValue() }
+            ).catch((err) => {
+                props.openSnackbar("Unable to submit transaction")
+                return null;
+            });
 
+            if (tx) {
+                console.log(tx)
+            }
 
-        //     const calls = [
-        //         {
-        //             address: CONTRACTADDRESSES.NFTSale,
-        //             abi,
-        //             functionName: "buyNFT",
-        //             args: [
-        //                 formData.couponCode,
-        //                 signer.address,
-        //                 tokenAddress
-        //             ],
-        //             gasLimit: 21000n // example gas
-        //         }
-        //     ]
-        // }
+//tx.wait throws for some weird reason about "confirmations" not a function
+
+            // const receipt = await tx.wait();
+            // console.log(receipt);
+
+            // if (receipt.status === 1) {
+
+            //     props.openSnackbar("✅ Transaction succeeded! Redirecting");
+
+            //     //TODO: get the game's id! and use it to redirect
+            //     //TODO: the receipt should have an event emitted with the id.
+
+            window.location.href = "https://flowroll.club/games";
+
+            // } else if (receipt.status === 0) {
+            //     props.openSnackbar("❌ Transaction failed!")
+            // }
+
+        } catch (err: any) {
+            console.log("Error occured: ", err.message)
+            props.openSnackbar("Error occured: ", err.message)
+        }
 
 
     };
@@ -780,16 +800,12 @@ export default function AnimatedBettingForm(props: { openSnackbar: CallableFunct
                     <button
                         type="submit"
                         className="w-full mt-8 border cursor-pointer       py-4 px-6 rounded-lg font-semibold text-lg transform transition-all duration-300 hover:scale-105 hover:shadow-xl active:scale-95 focus:outline-none focus:ring-4 focus:ring-purple-400/50"
-                        disabled={isPending}
                     >
                         <span className="flex items-center justify-center">
                             <Dice1 className="w-5 h-5 mr-2 animate-spin" />
-                            Mint Game
+                            Mint Game {isNaN(parseInt(nftCount)) ? "" : parseInt(nftCount)}
                         </span>
                     </button>
-                    {isPending && <p>Sending transaction...</p>}
-                    {error && <p>Error: {error.message}</p>}
-                    {txId && <p>Transaction ID: {txId}</p>}
                 </form>
             </div>
 

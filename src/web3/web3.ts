@@ -1,6 +1,7 @@
 import MetaMaskOnboarding from "@metamask/onboarding";
 import { ethers } from "ethers";
 import { formatEther, parseEther } from "ethers/lib/utils";
+import {Web3Provider} from "@ethersproject/providers"
 
 
 export const NETWORKDETAILS = {
@@ -28,9 +29,9 @@ export async function getChainId(provider: any): Promise<number> {
 }
 
 function getWeb3Provider() {
-  
+
     //@ts-ignore
-    const provider = new  ethers.BrowserProvider(window.ethereum)
+    const provider = new Web3Provider(window.ethereum)
     //@ts-ignore
     window.ethereum.on('chainChanged', (chainId) => {
         // Handle the new chain.
@@ -67,6 +68,12 @@ export async function onboardOrSwitchNetwork(handleError: any) {
     return switchNetwork();
 }
 
+
+export async function requestAccounts() {
+    //@ts-ignore
+    await window.ethereum.send("eth_requestAccounts", []); // prompts user to connect
+
+}
 
 async function ethereumRequestAddChain(
     hexchainId: string,
