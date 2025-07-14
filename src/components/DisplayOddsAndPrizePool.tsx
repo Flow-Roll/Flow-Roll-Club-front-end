@@ -24,6 +24,9 @@ function calculateDivisibleOddsRatio(min: number, max: number, divider: number) 
     const numWinners = Math.floor((lastDivisible - firstDivisible) / divider) + 1;
     const numLosers = totalOutcomes - numWinners;
 
+    if (isNaN(numLosers) || isNaN(numWinners)) {
+        return `Unable to calculate`
+    }
     return `${numLosers} to ${numWinners}`;
 }
 
@@ -49,41 +52,3 @@ export default function DisplayOddsAndPrizePool({ betMin, betMax, betType, divid
         </div>
     </div>
 }
-
-
-
-
-
-
-
-
-//TODO: I think this crashes, scrape it:
-// function gcd(a, b) {
-//     while (b !== 0) {
-//         [a, b] = [b, a % b];
-//     }
-//     return a;
-// }
-
-// function calculateDivisibleOddsRatioSimplified(min: number, max: number, divider: number) {
-  
-//     const totalOutcomes = max - min + 1;
-
-//     // Count how many numbers between min and max are divisible by the divider
-//     const firstDivisible = Math.ceil(min / divider) * divider;
-//     const lastDivisible = Math.floor(max / divider) * divider;
-
-//     if (firstDivisible > max) {
-//         return `No wins possible (odds: ${totalOutcomes} to 0)`;
-//     }
-
-//     const numWinners = Math.floor((lastDivisible - firstDivisible) / divider) + 1;
-//     const numLosers = totalOutcomes - numWinners;
-
-//     // Reduce the ratio
-//     const divisor = gcd(numLosers, numWinners);
-//     const simplifiedLosers = numLosers / divisor;
-//     const simplifiedWinners = numWinners / divisor;
-
-//     return `${simplifiedLosers} to ${simplifiedWinners}`;
-// }
