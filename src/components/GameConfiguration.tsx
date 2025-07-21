@@ -394,13 +394,14 @@ export default function AnimatedBettingForm(props: { openSnackbar: CallableFunct
         const contract = await getContract(provider, CONTRACTADDRESSES.NFTSale, "NFTSale.json")
 
         if (couponDetails.isSet) {
-            //Check if the address is used already
-            //TODO: For that the wallet address is needed!
+            const usedCouponAlreadyCheck = await NFTSaleContract.view.usedCouponAlready(contract, address, formData.couponCode);
+
+            if (usedCouponAlreadyCheck) {
+                //The coupon was used already by this address
+                props.openSnackbar("Your wallet address used the coupon already.")
+                return;
+            }
         }
-
-        //TODO: Check if the game parameters are used already once
-
-
         const getValue = () => {
             if (couponDetails.isSet) {
                 return parseEther(couponDetails.paymentWithCoupon)
@@ -417,11 +418,42 @@ export default function AnimatedBettingForm(props: { openSnackbar: CallableFunct
             }
         }
 
+        const nftContract = await getContractOnlyView(provider, CONTRACTADDRESSES.FlowRollNFT, "FlowRollNFT.json")
+        const parametersHash = await FLOWROLLNFTContract.view.hashRollParameters(
+            nftContract,
+            getTokenAddress(),
+            formData.winnerPrizeShare,
+            parseEther(formData.diceRollCost),
+            formData.houseEdge,
+            parseEther(formData.revealCompensation),
+            betParams[0],
+            betParams[1],
+            betParams[2]
+        );
+
+        const existsAlready = await FLOWROLLNFTContract.view.parametersExist(nftContract, parametersHash)
+
+        if (existsAlready) {
+            props.openSnackbar("This game configuration exists already");
+            return;
+        }
+
+        const nameExists = await FLOWROLLNFTContract.view.nameExists(nftContract, formData.name);
+
+        if (nameExists) {
+            props.openSnackbar("Name already exists");
+            display = { ...display, nameError: "You need to use a different name." }
+
+            errorOccured = true;
+            scroll.toName()
+            return;
+        }
 
         try {
             //then buy the NFT        
             const tx = await NFTSaleContract.mutate.buyNFT(
                 contract,
+                formData.name,
                 formData.couponCode,
                 address,
                 getTokenAddress(),
@@ -437,26 +469,9 @@ export default function AnimatedBettingForm(props: { openSnackbar: CallableFunct
             });
 
             if (tx) {
-                console.log(tx)
+                window.location.href = "https://flowroll.club/games";
             }
 
-//tx.wait throws for some weird reason about "confirmations" not a function
-
-            // const receipt = await tx.wait();
-            // console.log(receipt);
-
-            // if (receipt.status === 1) {
-
-            //     props.openSnackbar("✅ Transaction succeeded! Redirecting");
-
-            //     //TODO: get the game's id! and use it to redirect
-            //     //TODO: the receipt should have an event emitted with the id.
-
-            window.location.href = "https://flowroll.club/games";
-
-            // } else if (receipt.status === 0) {
-            //     props.openSnackbar("❌ Transaction failed!")
-            // }
 
         } catch (err: any) {
             console.log("Error occured: ", err.message)
