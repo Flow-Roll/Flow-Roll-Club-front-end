@@ -1,22 +1,74 @@
 import { useState } from 'react';
-import { Plus, DollarSign, TrendingUp, Award } from 'lucide-react';
+import { Plus, DollarSign, TrendingUp, Award, Currency } from 'lucide-react';
+import DisplayOddsAndPrizePool from './DisplayOddsAndPrizePool';
+import AnimatedBettingButtons from './Betbuttons';
+import { handleNetworkSelect, requestAccounts } from '../web3/web3';
+import { ERC20Contract, FLOWROLLGameContract, getContract } from '../web3/ethers';
+import { parseEther, ZeroAddress } from 'ethers';
 
-const PrizePoolDeposit = (props: { gameId: any }) => {
-    console.log(props)
-    const [prizePool, setPrizePool] = useState(2450.75);
+const PrizePoolDeposit = (props: {
+    gameId: any,
+    currency: string,
+    currencyAddress: string,
+    prizePool: string,
+    betAmount: string,
+    rollReward: string,
+    odds: string,
+    winnerPrizeShare: number,
+    calculatedReward: number,
+    min: number,
+    max: number,
+    betType: string,
+    divider: number
+    openSnackbar: (message: string) => void
+    gameContractAddress: string
+}) => {
     const [depositAmount, setDepositAmount] = useState('');
     const [isDepositModalOpen, setIsDepositModalOpen] = useState(false);
 
-    const handleDeposit = () => {
+    const handleDeposit = async () => {
         const amount = parseFloat(depositAmount);
         if (amount && amount > 0) {
-            setPrizePool(prev => prev + amount);
             setDepositAmount('');
+
+            const provider = await handleNetworkSelect(props.openSnackbar)
+
+            if (!provider) {
+                props.openSnackbar("unable to connect wallet")
+                return;
+            }
+            await requestAccounts()
+
+            const gameContract = await getContract(provider, props.gameContractAddress, "/FlowRoll.json")
+
+            if (props.currencyAddress === ZeroAddress) {
+                await FLOWROLLGameContract.mutate.fundPrizePoolFlow(gameContract, parseEther(depositAmount))
+            } else {
+                const erc20Contract = await getContract(provider, props.currencyAddress, "/ERC20.json");
+                const signer = await provider.getSigner();
+                const address = await signer.getAddress()
+                //Check if the allowance covers the deposit
+                const allowance = await ERC20Contract.view.allowance(erc20Contract, address, props.gameContractAddress);
+
+                if (allowance < parseEther(depositAmount)) {
+
+                    await ERC20Contract.mutate.approveSpend(erc20Contract, props.gameContractAddress, parseEther(depositAmount)).then(async () => {
+                        //After the approval, I deposit
+                        await FLOWROLLGameContract.mutate.fundPrizePoolERC20(gameContract, parseEther(depositAmount))
+                    })
+                } else {
+                    //Just deposit without checking allowance stuff
+                    await FLOWROLLGameContract.mutate.fundPrizePoolERC20(gameContract, parseEther(depositAmount))
+                }
+
+
+            }
+
+
             setIsDepositModalOpen(false);
         }
     };
 
-    const quickDepositAmounts = [10, 25, 50, 100];
 
     return (
         <div className="max-w-4xl mx-auto p-6">
@@ -31,9 +83,8 @@ const PrizePoolDeposit = (props: { gameId: any }) => {
                         <div>
                             <h2 className="text-lg font-medium text-gray-700 mb-1">Current Prize Pool</h2>
                             <div className="flex items-center space-x-2">
-                                <DollarSign className="w-6 h-6 text-green-600" />
                                 <span className="text-4xl font-bold text-gray-900">
-                                    {prizePool.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                                    {props.prizePool} {props.currency}
                                 </span>
                             </div>
                             <div className="flex items-center mt-2 text-sm text-gray-600">
@@ -42,11 +93,11 @@ const PrizePoolDeposit = (props: { gameId: any }) => {
                             </div>
                             <div className="flex items-center mt-2 text-sm text-gray-600">
                                 <DollarSign className="w-4 h-4 mr-1 text-yellow-400" />
-                                <span>Bet $50, Odds: 3/1</span>
+                                <span>Bet <strong>{props.betAmount} {props.currency}</strong>, Roll Reward: <strong>{props.rollReward} {props.currency}</strong></span>
                             </div>
                             <div className="flex items-center mt-2 text-sm text-gray-600">
                                 <Award className="w-4 h-4 mr-1 text-green-500" />
-                                <span>Win: 30% of the pool</span>
+                                <span>Win: {props.winnerPrizeShare}% of the pool, <strong>{props.calculatedReward} {props.currency}</strong></span>
                             </div>
                         </div>
                     </div>
@@ -57,9 +108,13 @@ const PrizePoolDeposit = (props: { gameId: any }) => {
                         className="cursor-pointer font-semibold py-3 px-6 rounded-lg shadow-md transition-all duration-200 hover:shadow-lg hover:-translate-y-0.5 flex items-center space-x-2"
                     >
                         <Plus className="w-5 h-5" />
-                        
+
                     </button>
                 </div>
+                <div className='mt-5 max-w-64'>
+                    <DisplayOddsAndPrizePool betMin={props.min} betMax={props.max} betType={props.betType} divider={props.betType}></DisplayOddsAndPrizePool>
+                </div>
+                <AnimatedBettingButtons></AnimatedBettingButtons>
             </div>
 
             {/* Deposit Modal */}
@@ -75,38 +130,22 @@ const PrizePoolDeposit = (props: { gameId: any }) => {
                                 ×
                             </button>
                         </div>
+                        <p>Donate to the prize pool to incentivize betting</p>
 
                         {/* Current Pool Display */}
                         <div className="bg-gray-50 rounded-lg p-4 mb-6">
                             <p className="text-sm text-gray-600 mb-1">Current Prize Pool</p>
                             <p className="text-2xl font-bold ">
-                                ${prizePool.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                                {props.prizePool} {props.currency}
                             </p>
                         </div>
-
-                        {/* Quick Deposit Buttons */}
-                        <div className="mb-4">
-                            <p className="text-sm font-medium text-gray-700 mb-3">Quick deposit amounts:</p>
-                            <div className="grid grid-cols-4 gap-2">
-                                {quickDepositAmounts.map(amount => (
-                                    <button
-                                        key={amount}
-                                        onClick={() => setDepositAmount(amount.toString())}
-                                        className="bg-gray-100 hover:bg-blue-100 text-gray-700 hover:text-blue-700 py-2 px-3 rounded-lg transition-colors duration-200 font-medium"
-                                    >
-                                        ${amount}
-                                    </button>
-                                ))}
-                            </div>
-                        </div>
-
                         {/* Custom Amount Input */}
                         <div className="mb-6">
                             <label className="block text-sm font-medium text-gray-700 mb-2">
-                                Custom amount:
+                                Deposit amount:
                             </label>
                             <div className="relative">
-                                <DollarSign className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
+                                {props.currency}
                                 <input
                                     type="number"
                                     value={depositAmount}
@@ -132,7 +171,7 @@ const PrizePoolDeposit = (props: { gameId: any }) => {
                                 disabled={!depositAmount || parseFloat(depositAmount) <= 0}
                                 className="flex-1 bg-blue-600 hover:bg-blue-700 disabled:bg-gray-300 disabled:cursor-not-allowed text-white font-semibold py-3 px-4 rounded-lg transition-colors duration-200"
                             >
-                                Deposit ${depositAmount || '0.00'}
+                                Deposit {depositAmount || '0.00'} {props.currency}
                             </button>
                         </div>
                     </div>
