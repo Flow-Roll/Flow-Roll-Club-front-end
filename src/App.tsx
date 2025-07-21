@@ -56,7 +56,7 @@ function App() {
       <Routes>
         <Route path="/" element={<LandingPage></LandingPage>}></Route>
         <Route path="mint" element={<MintPage openSnackbar={openSnackbar}></MintPage>}></Route>
-        <Route path={"games/:id"} element={<GamePage></GamePage>}></Route>
+        <Route path={"games/:id"} element={<GamePage openSnackbar={openSnackbar}></GamePage>}></Route>
         <Route path="games" element={<GamesPage></GamesPage>}></Route>
         <Route path="*" element={<GamblingQuotes404></GamblingQuotes404>}></Route>
       </Routes>
@@ -65,7 +65,7 @@ function App() {
 
 
   return (
-   <div>
+    <div>
       <Box>
         <WalletSelectHeader></WalletSelectHeader>
         {getRoutes()}
