@@ -99,6 +99,7 @@ async function getCommission(contract: any, newPrice: BigInt, coupon: string) {
 /**
  * The function that mints the NFTs and creates the dice games
  * @param contract The NFTSale contract
+ * @param name The name of the game
  * @param coupon  The coupon to apply
  * @param to  The address that will own the NFT and the dice ame
  * @param ERC20Address The address of the ERC20 token used, zero address for Flow
@@ -111,6 +112,7 @@ async function getCommission(contract: any, newPrice: BigInt, coupon: string) {
  */
 async function buyNFT(
     contract: any,
+    name: string,
     coupon: string,
     to: string,
     ERC20Address: string,
@@ -122,7 +124,7 @@ async function buyNFT(
     meta: Object
 ) {
     return await contract.buyNFT(
-        coupon,
+        [name, coupon],
         to,
         ERC20Address,
         winnerPrizeShare,
@@ -193,6 +195,7 @@ async function tokenURI(contract: any, tokenId: string): Promise<string> {
 /**
  * Hashes the parameters to check for duplicates.
  * @param contract The FlowRollNFT contract
+ * @param ERC20Address The address of the ERC20 used
  * @param winnerPrizeShare The percentage of the prize pool pay out
  * @param diceRollCost The cost of a bet
  * @param houseEdge The percentage of the house win
@@ -204,6 +207,7 @@ async function tokenURI(contract: any, tokenId: string): Promise<string> {
  */
 async function hashRollParameters(
     contract: any,
+    erc20Address: string,
     winnerPrizeShare: number,
     diceRollCost: BigInt,
     houseEdge: number,
@@ -213,6 +217,7 @@ async function hashRollParameters(
     betType: number
 ) {
     return await contract.hashRollParameters(
+        erc20Address,
         winnerPrizeShare,
         diceRollCost,
         houseEdge,
@@ -232,6 +237,28 @@ async function hashRollParameters(
 
 async function balanceOf(contract: any, owner: string) {
     return await contract.balanceOf(owner)
+}
+
+
+/**
+ * Get the Name of the NFT by index
+ * @param contract The FlowRollNFT contract
+ * @param id: the index or tokenid
+ * @returns string, the name
+ */
+
+async function nameOf(contract: any, id: number) {
+    return await contract.names(id)
+}
+
+/**
+ * Check if a name exists
+ * @param contract  The FlowRollNFT contract
+ * @param name  The name to check
+ * @returns true if a name exists already
+ */
+async function nameExists(contract: any, name: string) {
+    return await contract.nameExists(name);
 }
 
 /**
@@ -342,7 +369,7 @@ async function bets(contract: any, index: BigInt) {
  * @returns void
  */
 async function fundPrizePoolFlow(contract: any, amount: BigInt) {
-    return await contract.fundPrizePoolFlow(amount, { value: amount })
+    return await contract.fundPrizePoolFLOW(amount, { value: amount })
 }
 
 /**
@@ -398,6 +425,28 @@ async function erc20Name(contract: any) {
     return await contract.name();
 }
 
+/**
+ * Returns the allowance
+ * @param contract The ERC20 contract address
+ * @param owner  The owner of the tokens
+ * @param spender The spender of the tokens
+ */
+
+async function allowance(contract: any, owner: string, spender: string) {
+    return await contract.allowance(owner, spender)
+}
+
+/**
+ * Approves spend for the ERC20 contract
+ * @param contract The ERC20 contract
+ * @param spender The game contract address is the spender
+ * @param amount The amount to spend
+ */
+
+async function approveSpend(contract: any, spender: string, amount: BigInt) {
+    return await contract.approve(spender, amount)
+}
+
 export const NFTSaleContract = {
     view: {
         getCoupon,
@@ -422,7 +471,9 @@ export const FLOWROLLNFTContract = {
         tokenURI,
         hashRollParameters,
         balanceOf,
-        ownerOf
+        ownerOf,
+        nameOf,
+        nameExists
     },
     mutate: {
         safeTransferFrom
@@ -449,6 +500,10 @@ export const FLOWROLLGameContract = {
 
 export const ERC20Contract = {
     view: {
-        name: erc20Name
+        name: erc20Name,
+        allowance
+    },
+    mutate: {
+        approveSpend
     }
 }
