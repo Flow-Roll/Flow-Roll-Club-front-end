@@ -2,12 +2,11 @@ import { useParams } from 'react-router-dom';
 import BettingPool from '../components/BettingPool';
 import { Box, Typography, CircularProgress } from "@mui/material"
 import DiceRollHistory from '../components/DiceRollHistory';
-import AnimatedBettingButtons from '../components/Betbuttons';
 import { useEffect, useState } from 'react';
 import { ERC20Contract, FLOWROLLGameContract, FLOWROLLNFTContract, getContractOnlyView, getJsonRpcProvider } from '../web3/ethers';
 import { CONTRACTADDRESSES } from '../web3/contracts';
 import { ZeroAddress, formatEther } from 'ethers';
-import DisplayOddsAndPrizePool, { calculateDivisibleOddsRatio, calculateOddsRatio } from '../components/DisplayOddsAndPrizePool';
+import { calculateDivisibleOddsRatio, calculateOddsRatio } from '../components/DisplayOddsAndPrizePool';
 
 
 export default function GamePage(props: { openSnackbar: (message: string) => void }) {
@@ -157,17 +156,9 @@ export default function GamePage(props: { openSnackbar: (message: string) => voi
         </div>
     }
 
-    return <div className=' mx-auto p-6 '>
-        <Box
-            display="flex"
-            flexDirection="column"
-            alignItems="center"
-            justifyContent="center"
-        >
-            <Typography variant='h1' component="h1" ><strong>{name}</strong></Typography>
-            <Typography variant="subtitle1" component="div"><strong>NFT : {id}</strong></Typography>
-        </Box>
+    return <div className=' '>
         <Box><BettingPool
+            name={name}
             gameId={id}
             currency={currency.name}
             currencyAddress={currency.address}
@@ -183,7 +174,6 @@ export default function GamePage(props: { openSnackbar: (message: string) => voi
             divider={Number(gameParameters.betType)}
             openSnackbar={props.openSnackbar}
             gameContractAddress={gameContractAddress}
-
         /></Box>
         {/* TODO: pagination for dice roll history */}
         <Box><DiceRollHistory /></Box>
@@ -192,5 +182,5 @@ export default function GamePage(props: { openSnackbar: (message: string) => voi
 }
 
 function calculateReward(prizePool: number, percentage: number) {
-    return (prizePool / 100) * percentage;
+    return Number(((prizePool / 100) * percentage).toFixed(4));
 }
