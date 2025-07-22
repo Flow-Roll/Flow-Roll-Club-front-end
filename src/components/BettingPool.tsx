@@ -1,12 +1,17 @@
 import { useState } from 'react';
-import { Plus, DollarSign, TrendingUp, Award, Currency } from 'lucide-react';
+import { Plus, DollarSign, TrendingUp, Award } from 'lucide-react';
 import DisplayOddsAndPrizePool from './DisplayOddsAndPrizePool';
 import AnimatedBettingButtons from './Betbuttons';
 import { handleNetworkSelect, requestAccounts } from '../web3/web3';
 import { ERC20Contract, FLOWROLLGameContract, getContract } from '../web3/ethers';
 import { parseEther, ZeroAddress } from 'ethers';
+import CopyLinkButton from './CopyButton';
+import ShareXButton from './ShareOnX';
+import { TextField } from '@mui/material';
+import { calculateWinningNumbersList } from './GameConfiguration';
 
 const PrizePoolDeposit = (props: {
+    name: string,
     gameId: any,
     currency: string,
     currencyAddress: string,
@@ -26,6 +31,8 @@ const PrizePoolDeposit = (props: {
     const [depositAmount, setDepositAmount] = useState('');
     const [isDepositModalOpen, setIsDepositModalOpen] = useState(false);
 
+    const [numberToBetOn, setNumberToBetOn] = useState("");
+    console.log(props)
     const handleDeposit = async () => {
         const amount = parseFloat(depositAmount);
         if (amount && amount > 0) {
@@ -61,7 +68,6 @@ const PrizePoolDeposit = (props: {
                     await FLOWROLLGameContract.mutate.fundPrizePoolERC20(gameContract, parseEther(depositAmount))
                 }
 
-
             }
 
 
@@ -69,12 +75,23 @@ const PrizePoolDeposit = (props: {
         }
     };
 
-
     return (
         <div className="max-w-4xl mx-auto p-6">
+            <span className="mx-8 text-lg flex flex-row justify-between">
+                <div>
+                    <span className="font-semibold">{props.name}</span>
+                    <span className="mx-2">|</span>
+                    <span className="">Token #{props.gameId}</span>
+                    <span><CopyLinkButton textToCopy={'https://flowroll.club/games/' + props.gameId}></CopyLinkButton></span>
+                </div>
+                <span className="right mr-10"><ShareXButton text="Play this game on flow roll club " url={'https://flowroll.club/games/' + props.gameId}></ShareXButton></span>
+            </span>
             {/* Main Prize Pool Display */}
             <div className="bg-gradient-to-br  rounded-2xl p-8 shadow-lg border ">
+
+
                 <div className="flex items-center justify-between">
+
                     {/* Prize Pool Info */}
                     <div className="flex items-center space-x-4">
                         <div className=" rounded-full">
@@ -112,9 +129,55 @@ const PrizePoolDeposit = (props: {
                     </button>
                 </div>
                 <div className='mt-5 max-w-64'>
-                    <DisplayOddsAndPrizePool betMin={props.min} betMax={props.max} betType={props.betType} divider={props.betType}></DisplayOddsAndPrizePool>
+                    <DisplayOddsAndPrizePool
+                        betMin={props.min}
+                        betMax={props.max}
+                        betType={props.betType}
+                        divider={props.divider}></DisplayOddsAndPrizePool>
                 </div>
-                <AnimatedBettingButtons></AnimatedBettingButtons>
+
+                {props.betType === "userguess" ?
+                    <div className="flex flex-row justify-center">
+
+                        <p>Chose a number between {props.min} and {props.max}</p>
+                    </div> : null}
+
+                {
+                    props.betType === "divisible" ? <div className="flex flex-row justify-center">
+
+                        <p>The winning numbers are {calculateWinningNumbersList(props.min.toString(), props.max.toString(), props.betType, props.divider)}, the numbers rolled are between {props.min} and {props.max}</p>
+                    </div> : null
+                }
+
+
+                {props.betType === "userguess" ?
+                    <div className="flex flex-row justify-center">
+                        <TextField
+                            type={"number"}
+                            value={numberToBetOn}
+                            id="bet-number"
+                            label="Bet on:"
+                            variant="filled"
+                            onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
+                                if (event.target.value !== "") {
+                                    if (isNaN(parseInt(event.target.value))) {
+                                        return;
+                                    }
+                                }
+                                setNumberToBetOn(event.target.value);
+                            }}
+
+                        />
+                    </div> : null}
+                <AnimatedBettingButtons
+                    betType={props.betType}
+                    min={props.min}
+                    max={props.max}
+                    numberToBetOn={props.betType === "userguess" ? parseInt(numberToBetOn) : 0}
+                    contractAddress={props.gameContractAddress}
+                    betAmount={props.betAmount}
+                    tokenAddress={props.currencyAddress}
+                    openSnackbar={props.openSnackbar} ></AnimatedBettingButtons>
             </div>
 
             {/* Deposit Modal */}

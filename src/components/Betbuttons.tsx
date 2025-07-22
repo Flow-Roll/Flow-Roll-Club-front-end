@@ -1,18 +1,88 @@
 import { useState } from 'react';
 import { DollarSign, Dice6 } from 'lucide-react';
+import { handleNetworkSelect, requestAccounts } from '../web3/web3';
+import { parseEther, ZeroAddress } from 'ethers';
+import { ERC20Contract, FLOWROLLGameContract, getContract } from '../web3/ethers';
 
-export default function AnimatedBettingButtons() {
+export default function AnimatedBettingButtons(props: {
+    contractAddress: string,
+    betAmount: string,
+    tokenAddress: string,
+    openSnackbar: (message: string) => void,
+    numberToBetOn: number,
+    min: number,
+    max: number,
+    betType: string
+}) {
     const [betPressed, setBetPressed] = useState(false);
     const [rollPressed, setRollPressed] = useState(false);
     const [isRolling, setIsRolling] = useState(false);
 
-    const handleBet = () => {
+    const handleBet = async () => {
+
+        if (props.betType === "userguess") {
+
+            if (props.numberToBetOn < props.min) {
+                props.openSnackbar("Your number is less than minimum")
+                return
+            }
+            if (props.numberToBetOn > props.max) {
+                props.openSnackbar("Your number is more than the maximum")
+                return
+            }
+        }
+
+
         setBetPressed(true);
         setTimeout(() => setBetPressed(false), 200);
         console.log('Bet placed!');
+        const provider = await handleNetworkSelect(props.openSnackbar)
+
+        if (!provider) {
+            props.openSnackbar("unable to connect wallet")
+            return;
+        }
+        await requestAccounts()
+
+        const gameContract = await getContract(provider, props.contractAddress, "/FlowRoll.json")
+
+        if (props.tokenAddress === ZeroAddress) {
+            //It's flow
+            await FLOWROLLGameContract.mutate.betFlow(gameContract, props.numberToBetOn, parseEther(props.betAmount)).catch((err) => {
+                console.error(err)
+                props.openSnackbar("Unable to submit transaction")
+            })
+
+
+        } else {
+
+            //Need to check allowance and then bet
+            const erc20Contract = await getContract(provider, props.tokenAddress, "/ERC20.json");
+            const signer = await provider.getSigner();
+            const address = await signer.getAddress()
+            //Check if the allowance covers the deposit
+            const allowance = await ERC20Contract.view.allowance(erc20Contract, address, props.contractAddress);
+
+            if (allowance < parseEther(props.betAmount)) {
+
+                await ERC20Contract.mutate.approveSpend(erc20Contract, props.contractAddress, parseEther(props.betAmount)).then(async () => {
+                    //After the approval, I deposit
+                    await FLOWROLLGameContract.mutate.betERC20(gameContract, parseEther(props.betAmount), props.numberToBetOn).catch((err) => {
+                        props.openSnackbar("Unable to submit transaction")
+                    })
+                }).catch((err) => {
+                    props.openSnackbar("Unable to approve spend")
+                })
+            } else {
+                //Just deposit without checking allowance stuff
+                await FLOWROLLGameContract.mutate.betERC20(gameContract, parseEther(props.betAmount), props.numberToBetOn).catch((err) => {
+                    props.openSnackbar("Unable to submit transaction")
+                })
+            }
+        }
     };
 
-    const handleRoll = () => {
+    const handleRoll = async () => {
         setRollPressed(true);
         setIsRolling(true);
         setTimeout(() => {
@@ -20,6 +90,29 @@ export default function AnimatedBettingButtons() {
             setIsRolling(false);
         }, 1000);
         console.log('Rolling dice!');
+        const provider = await handleNetworkSelect(props.openSnackbar)
+
+        if (!provider) {
+            props.openSnackbar("unable to connect wallet")
+            return;
+        }
+        await requestAccounts()
+
+        const gameContract = await getContract(provider, props.contractAddress, "/FlowRoll.json")
+
+        const lastBet = await FLOWROLLGameContract.view.lastBet(gameContract)
+
+        const lastClosedBet = await FLOWROLLGameContract.view.lastClosedBet(gameContract);
+
+        if (lastBet === lastClosedBet) {
+            props.openSnackbar("There are no bets to roll for")
+            return;
+        }
+
+        await FLOWROLLGameContract.mutate.revealDiceRoll(gameContract).catch((err) => {
+            props.openSnackbar("Unable to submit transaction")
+        })
+
     };
 
     return (
@@ -63,6 +156,7 @@ export default function AnimatedBettingButtons() {
             {/* Roll Button */}
             <button
                 onClick={handleRoll}
+
                 className={`
             relative group px-8 py-4 min-w-[140px] h-16
             bg-gradient-to-r from-orange-500 to-red-600
@@ -76,6 +170,7 @@ export default function AnimatedBettingButtons() {
             border-2 border-orange-400/30
             overflow-hidden
             cursor-pointer
+            
           `}
             >
                 {/* Shimmer effect */}
@@ -96,6 +191,6 @@ export default function AnimatedBettingButtons() {
           `} />
             </button>
         </div>
-        
+
     );
 }
