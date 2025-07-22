@@ -481,35 +481,7 @@ export default function AnimatedBettingForm(props: { openSnackbar: CallableFunct
 
     };
 
-    function calculateWinningNumbersList(
-        betMin: string,
-        betMax: string,
-        betType: string,
-        divider: number) {
-        if (betType !== "divisible") {
-            return [" "]
-        }
 
-        if (parseInt(betMin) >= parseInt(betMax)) {
-            return [" "]
-        }
-
-        if (divider > parseInt(betMax)) {
-            return [" "]
-        }
-
-        let winningNumberList = [];
-
-
-        for (let i = parseInt(betMin); i <= parseInt(betMax); i++) {
-
-            if (i % divider === 0) {
-                winningNumberList.push(i);
-            }
-        }
-
-        return winningNumberList
-    }
 
     function ShowError({ fieldName }: { fieldName: ErrorField }) {
         return (errorDisplay[fieldName] !== "" ? <div>
@@ -865,4 +837,34 @@ export default function AnimatedBettingForm(props: { openSnackbar: CallableFunct
       `}</style>
         </div>
     );
+}
+
+export function calculateWinningNumbersList(
+    betMin: string,
+    betMax: string,
+    betType: string,
+    divider: number) {
+    if (betType !== "divisible") {
+        return [" "]
+    }
+
+    if (parseInt(betMin) >= parseInt(betMax)) {
+        return [" "]
+    }
+
+    if (divider > parseInt(betMax)) {
+        return [" "]
+    }
+
+    let winningNumberList = [];
+
+
+    for (let i = parseInt(betMin); i <= parseInt(betMax); i++) {
+
+        if (i % divider === 0) {
+            winningNumberList.push(i);
+        }
+    }
+
+    return winningNumberList
 }
