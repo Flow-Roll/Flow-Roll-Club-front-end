@@ -4,11 +4,12 @@ import DisplayOddsAndPrizePool from './DisplayOddsAndPrizePool';
 import AnimatedBettingButtons from './Betbuttons';
 import { handleNetworkSelect, requestAccounts } from '../web3/web3';
 import { ERC20Contract, FLOWROLLGameContract, getContract } from '../web3/ethers';
-import { parseEther, ZeroAddress } from 'ethers';
+import { formatEther, parseEther, ZeroAddress } from 'ethers';
 import CopyLinkButton from './CopyButton';
 import ShareXButton from './ShareOnX';
 import { TextField } from '@mui/material';
 import { calculateWinningNumbersList } from './GameConfiguration';
+import { BetLostPopup, BetPlacedPopup, BetWonPopup } from './BettingPopup';
 
 const PrizePoolDeposit = (props: {
     name: string,
@@ -32,7 +33,57 @@ const PrizePoolDeposit = (props: {
     const [isDepositModalOpen, setIsDepositModalOpen] = useState(false);
 
     const [numberToBetOn, setNumberToBetOn] = useState("");
-    console.log(props)
+
+    const [openPopups, setOpenPopups] = useState({
+        placed: false,
+        won: false,
+        lost: false,
+    });
+
+    const [winAmount, setWinAmount] = useState("");
+    const [numberRolled, setNumberRolled] = useState(0);
+
+    const handleOpenPopup = (type) => {
+        setOpenPopups(prev => ({ ...prev, [type]: true }));
+        // Auto-close after 3 seconds
+        setTimeout(() => {
+            setOpenPopups(prev => ({ ...prev, [type]: false }));
+        }, 3000);
+    };
+
+    const handleClosePopup = (type) => {
+        setOpenPopups(prev => ({ ...prev, [type]: false }));
+    };
+
+    async function pollForRollAfterBet(gameContract: any) {
+        const lastBet = await FLOWROLLGameContract.view.lastBet(gameContract)
+        console.log("poll last bet")
+        console.log(lastBet)
+        handleOpenPopup("placed")
+        const interval = setInterval(async () => {
+            const bet = await FLOWROLLGameContract.view.bets(gameContract, lastBet)
+            const [requestId, createdAtBlock, player, bet_, closed, won, numberRolled, payout] = bet;
+
+            console.log("POLLING")
+
+            if (closed) {
+                clearInterval(interval)
+                setNumberRolled(numberRolled)
+                if (bet.won) {
+                    setWinAmount(formatEther(payout))
+                    handleOpenPopup("won")
+
+                } else {
+                    handleOpenPopup("lost")
+                }
+            }
+
+        }, 1000)
+
+    }
+
+
+
     const handleDeposit = async () => {
         const amount = parseFloat(depositAmount);
         if (amount && amount > 0) {
@@ -58,6 +109,8 @@ const PrizePoolDeposit = (props: {
                 const allowance = await ERC20Contract.view.allowance(erc20Contract, address, props.gameContractAddress);
 
                 if (allowance < parseEther(depositAmount)) {
+
+
 
                     await ERC20Contract.mutate.approveSpend(erc20Contract, props.gameContractAddress, parseEther(depositAmount)).then(async () => {
                         //After the approval, I deposit
@@ -177,7 +230,9 @@ const PrizePoolDeposit = (props: {
                     contractAddress={props.gameContractAddress}
                     betAmount={props.betAmount}
                     tokenAddress={props.currencyAddress}
-                    openSnackbar={props.openSnackbar} ></AnimatedBettingButtons>
+                    openSnackbar={props.openSnackbar}
+                    pollForRollAfterBet={pollForRollAfterBet}
+                ></AnimatedBettingButtons>
             </div>
 
             {/* Deposit Modal */}
@@ -240,7 +295,27 @@ const PrizePoolDeposit = (props: {
                     </div>
                 </div>
             )}
+            <BetPlacedPopup
+                open={openPopups.placed}
+                onClose={() => handleClosePopup('placed')}
+                betAmount={depositAmount}
+            />
+
+            <BetWonPopup
+                open={openPopups.won}
+                onClose={() => handleClosePopup('won')}
+                betAmount={depositAmount}
+                winAmount={winAmount}
+            />
+
+            <BetLostPopup
+                open={openPopups.lost}
+                onClose={() => handleClosePopup('lost')}
+                betAmount={depositAmount}
+            />
         </div>
+
+
     );
 };
 
