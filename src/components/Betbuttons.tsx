@@ -12,7 +12,8 @@ export default function AnimatedBettingButtons(props: {
     numberToBetOn: number,
     min: number,
     max: number,
-    betType: string
+    betType: string,
+    pollForRollAfterBet: CallableFunction
 }) {
     const [betPressed, setBetPressed] = useState(false);
     const [rollPressed, setRollPressed] = useState(false);
@@ -48,7 +49,9 @@ export default function AnimatedBettingButtons(props: {
 
         if (props.tokenAddress === ZeroAddress) {
             //It's flow
-            await FLOWROLLGameContract.mutate.betFlow(gameContract, props.numberToBetOn, parseEther(props.betAmount)).catch((err) => {
+            await FLOWROLLGameContract.mutate.betFlow(gameContract, props.numberToBetOn, parseEther(props.betAmount)).then(async () => {
+                await props.pollForRollAfterBet(gameContract)
+            }).catch((err) => {
                 console.error(err)
                 props.openSnackbar("Unable to submit transaction")
             })
@@ -67,7 +70,9 @@ export default function AnimatedBettingButtons(props: {
 
                 await ERC20Contract.mutate.approveSpend(erc20Contract, props.contractAddress, parseEther(props.betAmount)).then(async () => {
                     //After the approval, I deposit
-                    await FLOWROLLGameContract.mutate.betERC20(gameContract, parseEther(props.betAmount), props.numberToBetOn).catch((err) => {
+                    await FLOWROLLGameContract.mutate.betERC20(gameContract, parseEther(props.betAmount), props.numberToBetOn).then(async () => {
+                        await props.pollForRollAfterBet(gameContract)
+                    }).catch((err) => {
                         props.openSnackbar("Unable to submit transaction")
                     })
                 }).catch((err) => {
@@ -75,7 +80,9 @@ export default function AnimatedBettingButtons(props: {
                 })
             } else {
                 //Just deposit without checking allowance stuff
-                await FLOWROLLGameContract.mutate.betERC20(gameContract, parseEther(props.betAmount), props.numberToBetOn).catch((err) => {
+                await FLOWROLLGameContract.mutate.betERC20(gameContract, parseEther(props.betAmount), props.numberToBetOn).then(async () => {
+                    await props.pollForRollAfterBet(gameContract)
+                }).catch((err) => {
                     props.openSnackbar("Unable to submit transaction")
                 })
             }
