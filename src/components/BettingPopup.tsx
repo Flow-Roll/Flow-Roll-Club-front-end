@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { CheckCircle, XCircle, Clock, DollarSign, TrendingUp, TrendingDown } from 'lucide-react';
+import { formatEther } from 'ethers';
 
 // Custom Dialog component that mimics MUI Dialog behavior
 const Dialog = ({ open, onClose, children, className = '' }) => {
@@ -44,12 +45,12 @@ const BetPlacedPopup = ({ open, onClose, betAmount }) => (
       </div>
       <h2 className="text-2xl font-bold mb-2">Bet Placed!</h2>
       <p className="text-blue-100 mb-4">Your bet is being processed</p>
-      <div className="bg-white bg-opacity-20 rounded-lg p-3 backdrop-blur-sm">
+      {/* <div className="bg-white bg-opacity-20 rounded-lg p-3 backdrop-blur-sm">
         <div className="flex items-center justify-center text-lg font-semibold">
           <DollarSign className="w-5 h-5 mr-1" />
           {betAmount}
         </div>
-      </div>
+      </div> */}
     </div>
   </Dialog>
 );
@@ -68,17 +69,17 @@ const BetWonPopup = ({ open, onClose, betAmount, winAmount }) => (
         <h2 className="text-2xl font-bold mb-2">Congratulations!</h2>
         <p className="text-green-100 mb-4">You won your bet!</p>
         <div className="bg-white bg-opacity-20 rounded-lg p-4 backdrop-blur-sm space-y-2">
-          <div className="flex justify-between items-center">
-            <span className="text-green-100">Bet Amount:</span>
+          {/* <div className="flex justify-between items-center">
+            <span className="">Bet Amount:</span>
             <span className="font-semibold">${betAmount}</span>
-          </div>
-          <div className="flex justify-between items-center text-lg font-bold">
+          </div> */}
+          {/* <div className="flex justify-between items-center text-lg font-bold">
             <span>You Won:</span>
-            <span className="text-yellow-300 flex items-center">
+            <span className="flex items-center">
               <DollarSign className="w-5 h-5 mr-1" />
               {winAmount}
             </span>
-          </div>
+          </div> */}
         </div>
       </div>
     </div>
@@ -96,15 +97,15 @@ const BetLostPopup = ({ open, onClose, betAmount }) => (
       </div>
       <h2 className="text-2xl font-bold mb-2">Better Luck Next Time</h2>
       <p className="text-red-100 mb-4">Your bet didn't win this round</p>
-      <div className="bg-white bg-opacity-20 rounded-lg p-3 backdrop-blur-sm mb-4">
-        <div className="flex items-center justify-center text-lg">
+      {/* <div className="bg-white bg-opacity-20 rounded-lg p-3 backdrop-blur-sm mb-4"> */}
+        {/* <div className="flex items-center justify-center text-lg">
           <span className="mr-2">Lost:</span>
           <span className="font-semibold flex items-center">
             <DollarSign className="w-5 h-5 mr-1" />
             {betAmount}
           </span>
-        </div>
-      </div>
+        </div> */}
+      {/* </div> */}
       <div className="text-sm text-red-200">
         Don't give up - try again!
       </div>
