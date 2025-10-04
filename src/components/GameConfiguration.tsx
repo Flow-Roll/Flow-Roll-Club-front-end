@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import { Dice1, Coins, Trophy, Settings, Zap, Target, Badge, ArrowDownCircle, ArrowUpCircle, Shuffle, Divide } from 'lucide-react';
 import { ERC20Contract, FLOWROLLNFTContract, getContract, getContractOnlyView, getJsonRpcProvider, NFTSaleContract } from '../web3/ethers';
 import { CONTRACTADDRESSES } from '../web3/contracts';
-import { formatEther, id, parseEther, ZeroAddress } from 'ethers';
+import { formatEther, parseEther, ZeroAddress } from 'ethers';
 import DiceGameSummary from './DiceGameSummary';
 import DisplayOddsAndPrizePool from './DisplayOddsAndPrizePool';
 
@@ -188,7 +188,7 @@ export default function AnimatedBettingForm(props: { openSnackbar: CallableFunct
             case "tokenAddress":
                 if (value !== "") {
                     const contract = await getContractOnlyView(provider, value as any, "ERC20.json")
-                    const erc20Name = await ERC20Contract.view.name(contract).catch(err => {
+                    const erc20Name = await ERC20Contract.view.name(contract).catch((_err: any) => {
                         props.openSnackbar("Failed to fetch token name")
                         return "";
                     })
@@ -463,7 +463,7 @@ export default function AnimatedBettingForm(props: { openSnackbar: CallableFunct
                 parseEther(formData.revealCompensation),
                 betParams,
                 { value: getValue() }
-            ).catch((err) => {
+            ).catch((_err: any) => {
                 props.openSnackbar("Unable to submit transaction")
                 return null;
             });
