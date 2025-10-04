@@ -1,10 +1,10 @@
-import { Dice1, Percent, Coins, DollarSign, Code, Target, ArrowUpDown } from 'lucide-react';
+import { Dice1,  Coins, DollarSign, Code, Target } from 'lucide-react';
 
 const DiceGameSummary = ({
     name,
     couponCode,
     couponPercentage,
-    commissionPayment,
+
     paymentWithoutCoupon,
     paymentWithCoupon,
     tokenAddress,
@@ -15,7 +15,7 @@ const DiceGameSummary = ({
     minimumBet,
     maximumBet,
     betType,
-    divider,
+
     winningNumbersList,
     paymentCurrency
 }: any) => {
