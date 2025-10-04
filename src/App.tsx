@@ -11,10 +11,6 @@ import LandingPage from "./pages/LandingPage";
 import WalletSelectHeader from "./components/WalletSelectHeader";
 import MintPage from "./pages/MintPage";
 import { GamesPage } from "./pages/GamesPage";
-import { FlowProvider } from "@onflow/kit"
-import { FLOW_CONFIG } from "./web3/fcl";
-
-
 
 function App() {
   const [snackbarOpen, setSnackbarOpen] = React.useState(false);
