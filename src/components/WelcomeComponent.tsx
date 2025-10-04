@@ -31,7 +31,6 @@ export default function FlowRollClubTitle() {
     return (
         <div className="flex flex-col items-center justify-center min-h-screen bg-white p-8">
             <div className="text-center">
-                <h1>UNDER CONSTRUCTION</h1>
                 <h1 className="text-6xl md:text-8xl font-black text-gray-800 mb-8 transform hover:scale-105 transition-transform duration-300">
                     <span className="inline-block animate-bounce" style={{ animationDelay: '0s' }}>W</span>
                     <span className="inline-block animate-bounce" style={{ animationDelay: '0.1s' }}>e</span>
