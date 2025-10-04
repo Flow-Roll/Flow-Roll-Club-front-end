@@ -1,9 +1,8 @@
-import React, { useState, useEffect } from 'react';
-import { CheckCircle, XCircle, Clock, DollarSign, TrendingUp, TrendingDown } from 'lucide-react';
-import { formatEther } from 'ethers';
+import { useEffect } from 'react';
+import { CheckCircle, XCircle, Clock, TrendingUp, TrendingDown } from 'lucide-react';
 
 // Custom Dialog component that mimics MUI Dialog behavior
-const Dialog = ({ open, onClose, children, className = '' }) => {
+const Dialog = ({ open, onClose, children, className = '' }: any) => {
   useEffect(() => {
     if (open) {
       document.body.style.overflow = 'hidden';
@@ -34,7 +33,7 @@ const Dialog = ({ open, onClose, children, className = '' }) => {
 };
 
 // Individual popup components
-const BetPlacedPopup = ({ open, onClose, betAmount }) => (
+const BetPlacedPopup = ({ open, onClose }: any) => (
   <Dialog open={open} onClose={onClose}>
     <div className="bg-gradient-to-br from-blue-500 to-blue-600 text-white p-8 rounded-2xl shadow-2xl min-w-80 text-center border border-blue-400">
       <div className="mb-4">
@@ -45,17 +44,12 @@ const BetPlacedPopup = ({ open, onClose, betAmount }) => (
       </div>
       <h2 className="text-2xl font-bold mb-2">Bet Placed!</h2>
       <p className="text-blue-100 mb-4">Your bet is being processed</p>
-      {/* <div className="bg-white bg-opacity-20 rounded-lg p-3 backdrop-blur-sm">
-        <div className="flex items-center justify-center text-lg font-semibold">
-          <DollarSign className="w-5 h-5 mr-1" />
-          {betAmount}
-        </div>
-      </div> */}
+
     </div>
   </Dialog>
 );
 
-const BetWonPopup = ({ open, onClose, betAmount, winAmount }) => (
+const BetWonPopup = ({ open, onClose }: any) => (
   <Dialog open={open} onClose={onClose}>
     <div className="bg-gradient-to-br from-green-500 to-emerald-600 text-white p-8 rounded-2xl shadow-2xl min-w-80 text-center border border-green-400 relative overflow-hidden">
       <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white to-transparent opacity-20 transform -skew-x-12 animate-pulse"></div>
@@ -86,7 +80,7 @@ const BetWonPopup = ({ open, onClose, betAmount, winAmount }) => (
   </Dialog>
 );
 
-const BetLostPopup = ({ open, onClose, betAmount }) => (
+const BetLostPopup = ({ open, onClose }: any) => (
   <Dialog open={open} onClose={onClose}>
     <div className="bg-gradient-to-br from-red-500 to-red-600 text-white p-8 rounded-2xl shadow-2xl min-w-80 text-center border border-red-400">
       <div className="mb-4">
@@ -97,15 +91,6 @@ const BetLostPopup = ({ open, onClose, betAmount }) => (
       </div>
       <h2 className="text-2xl font-bold mb-2">Better Luck Next Time</h2>
       <p className="text-red-100 mb-4">Your bet didn't win this round</p>
-      {/* <div className="bg-white bg-opacity-20 rounded-lg p-3 backdrop-blur-sm mb-4"> */}
-        {/* <div className="flex items-center justify-center text-lg">
-          <span className="mr-2">Lost:</span>
-          <span className="font-semibold flex items-center">
-            <DollarSign className="w-5 h-5 mr-1" />
-            {betAmount}
-          </span>
-        </div> */}
-      {/* </div> */}
       <div className="text-sm text-red-200">
         Don't give up - try again!
       </div>
