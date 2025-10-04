@@ -1,7 +1,6 @@
 import { useParams } from 'react-router-dom';
 import BettingPool from '../components/BettingPool';
 import { Box, Typography, CircularProgress } from "@mui/material"
-import DiceRollHistory from '../components/DiceRollHistory';
 import { useEffect, useState } from 'react';
 import { ERC20Contract, FLOWROLLGameContract, FLOWROLLNFTContract, getContractOnlyView, getJsonRpcProvider } from '../web3/ethers';
 import { CONTRACTADDRESSES } from '../web3/contracts';
@@ -16,7 +15,7 @@ export default function GamePage(props: { openSnackbar: (message: string) => voi
     const [loadingErrorOccured, setLoadingErrorOccured] = useState("")
     const [prizePool, setPrizePool] = useState(0n)
     const [currency, setCurrency] = useState({ name: "", address: "" })
-    const [bets, setBets] = useState({ lastBet: 0, lastClosedBet: 0 })
+    const [_bets, setBets] = useState({ lastBet: 0, lastClosedBet: 0 })
     const [gameContractAddress, setGameContractAddress] = useState("")
     const [gameParameters, setGameParameters] = useState({
         winnerPrizeShare: 0,
@@ -94,9 +93,7 @@ export default function GamePage(props: { openSnackbar: (message: string) => voi
 
     useEffect(() => {
         // Define the polling function
-        console.log("polling use effect runs")
         const fetchData = async () => {
-            console.log("polling")
             try {
 
                 const index = parseInt(id as string);
@@ -176,8 +173,7 @@ export default function GamePage(props: { openSnackbar: (message: string) => voi
             gameContractAddress={gameContractAddress}
         /></Box>
         {/* TODO: pagination for dice roll history */}
-        <Box><DiceRollHistory /></Box>
-
+        {/* <Box><DiceRollHistory /></Box> */}
     </div>;
 }
 
