@@ -85,7 +85,7 @@ const DiceGamesTitle = ({ gameCount = 8, openSnackbar }: { gameCount: number, op
 
             {/* Game count display */}
             <div className="relative">
-                <div className="bg-gradient-to-r  rounded-2xl p-6 shadow-2xl transform hover:scale-105 transition-all duration-300 max-w-md mx-auto">
+                <div className="bg-gradient-to-r  rounded-2xl p-6  max-w-md mx-auto">
                     <div className="text-center">
                         <div className="text-lg font-medium mb-2 opacity-90">
                             Choose from
@@ -121,16 +121,6 @@ const DiceGamesTitle = ({ gameCount = 8, openSnackbar }: { gameCount: number, op
 
             <Button onClick={goToGameId}>Go to game</Button>
 
-
-            {/* Subtitle */}
-            <p className="text-gray-600 text-lg mt-6 font-medium">
-                🌟 From classic to crazy - find your perfect dice adventure! 🌟
-            </p>
-
-            {/* Animated underline */}
-            <div className="flex justify-center mt-4">
-                <div className="w-32 h-1 bg-gradient-to-r from-transparent via-gray-500 to-transparent rounded-full opacity-50"></div>
-            </div>
         </div >
     );
 };
