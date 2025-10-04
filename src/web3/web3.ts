@@ -1,6 +1,4 @@
 import MetaMaskOnboarding from "@metamask/onboarding";
-import { ethers } from "ethers";
-import { formatEther, parseEther } from "ethers/lib/utils";
 import {Web3Provider} from "@ethersproject/providers"
 
 
