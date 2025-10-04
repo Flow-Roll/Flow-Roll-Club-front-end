@@ -5,7 +5,6 @@ import Typography from '@mui/material/Typography';
 
 import IconButton from '@mui/material/IconButton';
 import FRCLogo from "/logo2.webp"
-import '../web3/fcl'; //The config runs here
 
 export default function WalletSelectHeader() {
 
