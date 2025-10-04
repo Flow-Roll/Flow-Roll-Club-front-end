@@ -72,17 +72,17 @@ export default function AnimatedBettingButtons(props: {
                     //After the approval, I deposit
                     await FLOWROLLGameContract.mutate.betERC20(gameContract, parseEther(props.betAmount), props.numberToBetOn).then(async () => {
                         await props.pollForRollAfterBet(gameContract)
-                    }).catch((err) => {
+                    }).catch((_err: any) => {
                         props.openSnackbar("Unable to submit transaction")
                     })
-                }).catch((err) => {
+                }).catch((_err: any) => {
                     props.openSnackbar("Unable to approve spend")
                 })
             } else {
                 //Just deposit without checking allowance stuff
                 await FLOWROLLGameContract.mutate.betERC20(gameContract, parseEther(props.betAmount), props.numberToBetOn).then(async () => {
                     await props.pollForRollAfterBet(gameContract)
-                }).catch((err) => {
+                }).catch((_err: any) => {
                     props.openSnackbar("Unable to submit transaction")
                 })
             }
@@ -116,7 +116,7 @@ export default function AnimatedBettingButtons(props: {
             return;
         }
 
-        await FLOWROLLGameContract.mutate.revealDiceRoll(gameContract).catch((err) => {
+        await FLOWROLLGameContract.mutate.revealDiceRoll(gameContract).catch((_err: any) => {
             props.openSnackbar("Unable to submit transaction")
         })
 

@@ -41,9 +41,9 @@ const PrizePoolDeposit = (props: {
     });
 
     const [winAmount, setWinAmount] = useState("");
-    const [numberRolled, setNumberRolled] = useState(0);
+    const [_numberRolled, setNumberRolled] = useState(0);
 
-    const handleOpenPopup = (type) => {
+    const handleOpenPopup = (type: string) => {
         setOpenPopups(prev => ({ ...prev, [type]: true }));
         // Auto-close after 3 seconds
         setTimeout(() => {
@@ -51,7 +51,7 @@ const PrizePoolDeposit = (props: {
         }, 3000);
     };
 
-    const handleClosePopup = (type) => {
+    const handleClosePopup = (type: string) => {
         setOpenPopups(prev => ({ ...prev, [type]: false }));
     };
 
@@ -62,7 +62,7 @@ const PrizePoolDeposit = (props: {
         handleOpenPopup("placed")
         const interval = setInterval(async () => {
             const bet = await FLOWROLLGameContract.view.bets(gameContract, lastBet)
-            const [requestId, createdAtBlock, player, bet_, closed, won, numberRolled, payout] = bet;
+            const [_requestId, _createdAtBlock, _player, _bet_, closed, _won, numberRolled, payout] = bet;
 
             console.log("POLLING")
 
