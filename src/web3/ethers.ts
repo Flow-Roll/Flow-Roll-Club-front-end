@@ -94,6 +94,16 @@ async function getCommission(contract: any, newPrice: BigInt, coupon: string) {
     return await contract.getComission(newPrice, coupon);
 }
 
+/**
+ * 
+ * @param contract using NFTSale_v2 will return the flow cost here
+ * @returns 
+ */
+
+async function getFlowCost(contract: any) {
+    return await contract.flowCost()
+}
+
 // MUTATING METHODS FOR NFTSale CONTRACT
 
 /**
@@ -445,6 +455,16 @@ async function allowance(contract: any, owner: string, spender: string) {
 
 async function approveSpend(contract: any, spender: string, amount: BigInt) {
     return await contract.approve(spender, amount)
+}
+
+export const NFTSale_v2Contract = {
+    view: {
+        getCoupon,
+        usedCouponAlready,
+        getReducedPrice,
+        getCommission,
+        getFlowCost,
+    }
 }
 
 export const NFTSaleContract = {
