@@ -11,7 +11,6 @@ const DiceGameSummary = ({
     winnerPrizeShare,
     diceRollCost,
     houseEdge,
-    compensation,
     minimumBet,
     maximumBet,
     betType,
@@ -106,10 +105,6 @@ const DiceGameSummary = ({
                         <div className="flex justify-between">
                             <span className="text-gray-600">Bet :</span>
                             <span className="font-semibold">{diceRollCost}</span>
-                        </div>
-                        <div className="flex justify-between">
-                            <span className="text-gray-600">Roll Reward:</span>
-                            <span className="font-semibold text-green-600">{compensation}</span>
                         </div>
                     </div>
                 </div>
