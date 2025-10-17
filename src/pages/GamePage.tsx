@@ -6,6 +6,7 @@ import { ERC20Contract, FLOWROLLGameContract, FLOWROLLNFTContract, getContractOn
 import { CONTRACTADDRESSES } from '../web3/contracts';
 import { ZeroAddress, formatEther } from 'ethers';
 import { calculateDivisibleOddsRatio, calculateOddsRatio } from '../components/DisplayOddsAndPrizePool';
+import BettingCardsGrid from '../components/BettingCards';
 
 
 export default function GamePage(props: { openSnackbar: (message: string) => void }) {
@@ -26,8 +27,77 @@ export default function GamePage(props: { openSnackbar: (message: string) => voi
         max: 0,
         betType: 0
     });
+    const [lastBets, setLastBets] = useState<any>([])
+    const [lastBetIndex, setLastBetIndex] = useState(0);
+    const [lastClosedBetIndex, setLastClosedBetIndex] = useState(0);
+    const [firstFetchDone, setFirstFetchDone] = useState(false);
 
 
+
+    const fetchBets = async (contractAddress: string, firstFetchDone_: boolean) => {
+        if (contractAddress === "") {
+            return;
+        }
+        const provider = getJsonRpcProvider()
+        const viewC = await getContractOnlyView(provider, contractAddress, "/FlowRoll.json")
+        const lastCachedBet = lastBetIndex;
+        const lastBet = await FLOWROLLGameContract.view.lastBet(viewC)
+        setLastBetIndex(lastBet)
+
+        const lastClosedBet = await FLOWROLLGameContract.view.lastClosedBet(viewC)
+
+        setLastClosedBetIndex(lastClosedBet)
+
+        if (lastBet === 0) {
+            //Do not fetch last bets
+            return
+        }
+
+        if (lastCachedBet === lastBet) {
+            //Nothing was updated, do not run fetch
+
+            return;
+        }
+
+        if (firstFetchDone_) {
+            if (lastBet === lastClosedBet) {
+                //The last closed bet is the last bet, don't fetch
+                return;
+            }
+        }
+
+        const last9Bets = []
+
+        let toSub = 9n;
+
+        if (lastBet < 9n) {
+            if (lastBet > 1n) {
+                toSub = lastBet - 1n;
+            } else {
+                toSub = 0n;
+            }
+        }
+
+        for (let i = lastBet - toSub; i < lastBet; i++) {
+            const lastb = await FLOWROLLGameContract.view.bets(viewC, i);
+            last9Bets.push(
+                {
+                    requestId: lastb[0],
+                    createdAtBlock: lastb[1],
+                    player: lastb[2],
+                    bet: lastb[3],
+                    closed: lastb[4],
+                    won: lastb[5],
+                    numberRolled: lastb[6],
+                    payout: lastb[7]
+                })
+        }
+        setLastBets(last9Bets.reverse())
+
+        if (!firstFetchDone_) {
+            setFirstFetchDone(true)
+        }
+    }
 
     useEffect(() => {
         const fetchInitialData = async () => {
@@ -35,24 +105,33 @@ export default function GamePage(props: { openSnackbar: (message: string) => voi
                 const index = parseInt(id as string);
                 const provider = getJsonRpcProvider();
                 const contract = await getContractOnlyView(provider, CONTRACTADDRESSES.FlowRollNFT, "/FlowRollNFT.json")
-                const _name = await FLOWROLLNFTContract.view.nameOf(contract, index)
-                setName(_name);
+                const _name = await FLOWROLLNFTContract.view.nameOf(contract, index).catch((err) => {
+                    console.log("error fetching name")
+                })
+                if (_name === "") {
+                    setName("Undefined")
+                } else {
+                    setName(_name)
+                }
+
                 const _gameContractAddress = await FLOWROLLNFTContract.view.flowRollContractAddresses(contract, index)
                 setGameContractAddress(_gameContractAddress)
+            
                 const gameContract = await getContractOnlyView(provider, _gameContractAddress, "/FlowRoll.json");
                 const tokenAddress = await FLOWROLLGameContract.view.ERC20Address(gameContract);
 
                 if (tokenAddress === ZeroAddress) {
                     setCurrency({ name: "FLOW", address: tokenAddress })
                 } else {
+
                     const erc20Contract = await getContractOnlyView(provider, tokenAddress, "/ERC20.json");
                     const tokenName = await ERC20Contract.view.name(erc20Contract);
                     setCurrency({ name: tokenName, address: tokenAddress })
                 }
 
 
-                const prizePool = await FLOWROLLGameContract.view.prizeVault(gameContract);
-                setPrizePool(prizePool)
+                const prizePool_ = await FLOWROLLGameContract.view.prizeVault(gameContract);
+                setPrizePool(prizePool_)
                 const lastBet = await FLOWROLLGameContract.view.lastBet(gameContract);
                 const lastClosedBet = await FLOWROLLGameContract.view.lastClosedBet(gameContract);
                 setBets({ lastBet, lastClosedBet })
@@ -69,6 +148,8 @@ export default function GamePage(props: { openSnackbar: (message: string) => voi
                     max,
                     betType
                 })
+
+                await fetchBets(gameContractAddress, firstFetchDone)
 
                 setLoading(false);
             } catch (err) {
@@ -92,6 +173,7 @@ export default function GamePage(props: { openSnackbar: (message: string) => voi
     // a polling function to check the bets, lastBet and lastClosedBet, to display incoming stuff, every 5 seconds poll maybe
 
     useEffect(() => {
+
         // Define the polling function
         const fetchData = async () => {
             try {
@@ -101,11 +183,11 @@ export default function GamePage(props: { openSnackbar: (message: string) => voi
                 const contract = await getContractOnlyView(provider, CONTRACTADDRESSES.FlowRollNFT, "/FlowRollNFT.json")
                 const _gameContractAddress = await FLOWROLLNFTContract.view.flowRollContractAddresses(contract, index)
                 const gameContract = await getContractOnlyView(provider, _gameContractAddress, "/FlowRoll.json");
-
                 const prizePool = await FLOWROLLGameContract.view.prizeVault(gameContract);
                 setPrizePool(prizePool)
 
-                //TODO: Set bets and etc
+                await fetchBets(_gameContractAddress, firstFetchDone)
+
 
             } catch (error) {
                 console.error('Fetch error:', error);
@@ -114,16 +196,12 @@ export default function GamePage(props: { openSnackbar: (message: string) => voi
             }
         };
 
-        // Fetch immediately on mount
-        // fetchData();
-
         // Set up interval to poll every 5 seconds
         const intervalId = setInterval(fetchData, 5000);
 
         // Clean up interval on component unmount
         return () => clearInterval(intervalId);
-    }, []);
-
+    }, [firstFetchDone]);
 
 
     if (loading) {
@@ -159,7 +237,7 @@ export default function GamePage(props: { openSnackbar: (message: string) => voi
             gameId={id}
             currency={currency.name}
             currencyAddress={currency.address}
-            prizePool={formatEther(prizePool)}
+            prizePool={parseFloat(formatEther(prizePool)).toPrecision(10)}
             betAmount={formatEther(gameParameters.diceRollCost)}
             rollReward={formatEther(gameParameters.revealCompensation)}
             odds={gameParameters.betType > 1 ? calculateDivisibleOddsRatio(Number(gameParameters.min), Number(gameParameters.max), Number(gameParameters.betType)) : calculateOddsRatio(Number(gameParameters.min), Number(gameParameters.max))}
@@ -172,9 +250,12 @@ export default function GamePage(props: { openSnackbar: (message: string) => voi
             openSnackbar={props.openSnackbar}
             gameContractAddress={gameContractAddress}
         /></Box>
-        {/* TODO: pagination for dice roll history */}
-        {/* <Box><DiceRollHistory /></Box> */}
-    </div>;
+        <BettingCardsGrid min={Number(gameParameters.min)}
+            max={Number(gameParameters.max)}
+            betType={Number(gameParameters.betType) > 1 ? "divisible" : "userguess"}
+            divider={Number(gameParameters.betType)}
+            lastClosedBetIndex={lastClosedBetIndex} lastBetIndex={lastBetIndex} bets={lastBets}></BettingCardsGrid>
+    </div>
 }
 
 function calculateReward(prizePool: number, percentage: number) {
