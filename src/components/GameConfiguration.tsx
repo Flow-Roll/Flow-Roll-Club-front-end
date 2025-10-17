@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { Dice1, Coins, Trophy, Settings, Zap, Target, Badge, ArrowDownCircle, ArrowUpCircle, Shuffle, Divide } from 'lucide-react';
-import { ERC20Contract, FLOWROLLNFTContract, getContract, getContractOnlyView, getJsonRpcProvider, NFTSaleContract } from '../web3/ethers';
+import { ERC20Contract, FLOWROLLNFTContract, getContract, getContractOnlyView, getJsonRpcProvider, NFTSale_v2Contract } from '../web3/ethers';
 import { CONTRACTADDRESSES } from '../web3/contracts';
 import { formatEther, parseEther, ZeroAddress } from 'ethers';
 import DiceGameSummary from './DiceGameSummary';
@@ -8,22 +8,23 @@ import DisplayOddsAndPrizePool from './DisplayOddsAndPrizePool';
 
 import { getAddress } from 'viem'
 import { handleNetworkSelect, requestAccounts } from '../web3/web3';
+import { authenticateFCL, buyNFT } from '../web3/fcl';
+import { UnauthenticateButton } from './UnauthenticateButton';
 
 export default function AnimatedBettingForm(props: { openSnackbar: CallableFunction }) {
     const [mintCostFlow, setMintCostFlow] = useState("");
     const [nftCount, setNFTCount] = useState("");
 
     useEffect(() => {
+        //TODO: Update to the new contract that just fetches the flowValue
         const fetchData = async () => {
+            console.log("fetch data runs    ")
             const provider = getJsonRpcProvider();
-            const nftSaleContract = await getContractOnlyView(provider, CONTRACTADDRESSES.NFTSale, "NFTSale.json")
-            const expectedPrice = await NFTSaleContract.view.getExpectedPriceInFlow(nftSaleContract);
+            const nftSaleContract = await getContractOnlyView(provider, CONTRACTADDRESSES.NFTSaleV2, "NFTSale_v2.json")
+            const expectedPrice = await NFTSale_v2Contract.view.getFlowCost(nftSaleContract);
             setMintCostFlow(formatEther(expectedPrice))
-
             const nftContract = await getContractOnlyView(provider, CONTRACTADDRESSES.FlowRollNFT, "FlowRollNFT.json")
-
             const count = await FLOWROLLNFTContract.view.count(nftContract)
-
             setNFTCount(count);
 
         }
@@ -46,7 +47,7 @@ export default function AnimatedBettingForm(props: { openSnackbar: CallableFunct
         | "winnerPrizeShare"
         | "diceRollCost"
         | "houseEdge"
-        | "revealCompensation"
+        // | "revealCompensation"
         | "betMin"
         | "betMax"
         | "betType"
@@ -59,7 +60,7 @@ export default function AnimatedBettingForm(props: { openSnackbar: CallableFunct
         winnerPrizeShare: 50,
         diceRollCost: '',
         houseEdge: 2,
-        revealCompensation: '',
+        // revealCompensati on: '',
         betMin: '',
         betMax: '',
         betType: 'userguess',
@@ -75,7 +76,7 @@ export default function AnimatedBettingForm(props: { openSnackbar: CallableFunct
         winnerPrizeShareError: "",
         diceRollCostError: "",
         houseEdgeError: "",
-        revealCompensationError: "",
+        // revealCompensationError: "",
         betMinError: "",
         betMaxError: "",
         dividerError: ""
@@ -90,7 +91,7 @@ export default function AnimatedBettingForm(props: { openSnackbar: CallableFunct
         "winnerPrizeShareError" |
         "diceRollCostError" |
         "houseEdgeError" |
-        "revealCompensationError" |
+        // "revealCompensationError" |
         "betMinError" |
         "betMaxError" |
         "dividerError"
@@ -145,8 +146,8 @@ export default function AnimatedBettingForm(props: { openSnackbar: CallableFunct
                 break;
             case "couponCode":
                 if (value != "") {
-                    const contract = await getContractOnlyView(provider, CONTRACTADDRESSES.NFTSale, "NFTSale.json")
-                    const coupon = await NFTSaleContract.view.getCoupon(contract, value as string);
+                    const contract = await getContractOnlyView(provider, CONTRACTADDRESSES.NFTSaleV2, "NFTSale_v2.json")
+                    const coupon = await NFTSale_v2Contract.view.getCoupon(contract, value as string);
                     if (coupon[0] === ZeroAddress) {
 
                         setCouponDetails({
@@ -169,7 +170,7 @@ export default function AnimatedBettingForm(props: { openSnackbar: CallableFunct
 
                         const flowPrice = parseEther(mintCostFlow);
 
-                        const paymentWithCoupon = await NFTSaleContract.view.getReducedPrice(contract, value as string, flowPrice);
+                        const paymentWithCoupon = await NFTSale_v2Contract.view.getReducedPrice(contract, value as string, flowPrice);
 
 
                         setCouponDetails(
@@ -203,8 +204,8 @@ export default function AnimatedBettingForm(props: { openSnackbar: CallableFunct
                 break;
             case "houseEdge":
                 break;
-            case "revealCompensation":
-                break;
+            // case "revealCompensation":
+            //     break;
             case "betMin":
                 break;
             case "betMax":
@@ -319,14 +320,14 @@ export default function AnimatedBettingForm(props: { openSnackbar: CallableFunct
             scroll.toDiceRollCost()
         }
 
-        if (
-            formData.revealCompensation === "" ||
-            parseFloat(formData.revealCompensation) <= 0 ||
-            parseFloat(formData.revealCompensation) >= parseFloat(formData.diceRollCost)) {
-            display = { ...display, revealCompensationError: "Invalid roll reward" }
-            errorOccured = true;
-            scroll.toRevealCompensation();
-        }
+        // if (
+        //     formData.revealCompensation === "" ||
+        //     parseFloat(formData.revealCompensation) <= 0 ||
+        //     parseFloat(formData.revealCompensation) >= parseFloat(formData.diceRollCost)) {
+        //     display = { ...display, revealCompensationError: "Invalid roll reward" }
+        //     errorOccured = true;
+        //     scroll.toRevealCompensation();
+        // }
 
 
         if (!isValidNumber(formData.betMin)) {
@@ -380,33 +381,20 @@ export default function AnimatedBettingForm(props: { openSnackbar: CallableFunct
 
         const betParams = getBetParams(formData)
 
-        const provider = await handleNetworkSelect(props.openSnackbar)
+        const provider = getJsonRpcProvider()
 
         if (!provider) {
             props.openSnackbar("unable to connect wallet")
             return;
         }
-        await requestAccounts()
 
-        const signer = await provider.getSigner();
-        const address = await signer.getAddress()
+        const contract = await getContractOnlyView(provider, CONTRACTADDRESSES.NFTSaleV2, "NFTSale_v2.json")
 
-        const contract = await getContract(provider, CONTRACTADDRESSES.NFTSale, "NFTSale.json")
-
-        if (couponDetails.isSet) {
-            const usedCouponAlreadyCheck = await NFTSaleContract.view.usedCouponAlready(contract, address, formData.couponCode);
-
-            if (usedCouponAlreadyCheck) {
-                //The coupon was used already by this address
-                props.openSnackbar("Your wallet address used the coupon already.")
-                return;
-            }
-        }
         const getValue = () => {
             if (couponDetails.isSet) {
-                return parseEther(couponDetails.paymentWithCoupon)
+                return couponDetails.paymentWithCoupon
             } else {
-                return parseEther(mintCostFlow)
+                return mintCostFlow
             }
         }
 
@@ -425,12 +413,11 @@ export default function AnimatedBettingForm(props: { openSnackbar: CallableFunct
             formData.winnerPrizeShare,
             parseEther(formData.diceRollCost),
             formData.houseEdge,
-            parseEther(formData.revealCompensation),
+            parseEther("0"),
             betParams[0],
             betParams[1],
             betParams[2]
         );
-
         const existsAlready = await FLOWROLLNFTContract.view.parametersExist(nftContract, parametersHash)
 
         if (existsAlready) {
@@ -449,27 +436,47 @@ export default function AnimatedBettingForm(props: { openSnackbar: CallableFunct
             return;
         }
 
+        console.log("name exists", nameExists)
+
+        //TODO: authenticate here with the FCL
+        authenticateFCL()
+        // return
+        // if (couponDetails.isSet) {
+        //     //TODO: I will need to do an FCL call to check if used the coupon already
+        //     const usedCouponAlreadyCheck = await NFTSale_v2Contract.view.usedCouponAlready(contract, address, formData.couponCode);
+
+        //     if (usedCouponAlreadyCheck) {
+        //         //The coupon was used already by this address
+        //         props.openSnackbar("Your wallet address used the coupon already.")
+        //         return;
+        //     }
+        // }
+
         try {
-            //then buy the NFT        
-            const tx = await NFTSaleContract.mutate.buyNFT(
-                contract,
-                formData.name,
-                formData.couponCode,
-                address,
-                getTokenAddress(),
-                formData.winnerPrizeShare,
-                parseEther(formData.diceRollCost),
-                formData.houseEdge,
-                parseEther(formData.revealCompensation),
-                betParams,
-                { value: getValue() }
-            ).catch((_err: any) => {
+
+
+            const tx = await buyNFT({
+                contractAddress: CONTRACTADDRESSES.NFTSaleV2,
+                flowCost: getValue(),
+                name: formData.name,
+                coupon: formData.couponCode,
+                erc20Address: getTokenAddress(),
+                winnerPrizeShare: formData.winnerPrizeShare,
+                diceRollCost: formData.diceRollCost,
+                houseEdge: formData.houseEdge,
+                min: betParams[0],
+                max: betParams[1],
+                betType: betParams[2],
+                gasLimit: 2999999
+            }).catch((_err: any) => {
+                console.log(_err)
                 props.openSnackbar("Unable to submit transaction")
                 return null;
             });
 
             if (tx) {
-                window.location.href = "https://flowroll.club/games";
+                console.log(tx)
+                // window.location.href = "https://flowroll.club/games";
             }
 
 
@@ -566,6 +573,7 @@ export default function AnimatedBettingForm(props: { openSnackbar: CallableFunct
                                     : 'border-white/30 hover:border-white/50'
                                     }`}
                                 placeholder="0x..."
+                                disabled
                             />
                             <p className="text-sm font-medium">Enter an ERC20 token address or leave empty to use FLOW</p>
                             <ShowError fieldName="tokenAddressError"></ShowError>
@@ -638,30 +646,6 @@ export default function AnimatedBettingForm(props: { openSnackbar: CallableFunct
                             />
                             <p className='text-sm font-medium'>The percentage the house takes from the win or loss. The NFT owner is transferred this on each roll. There is a protocol fee on the house edge.</p>
                             <ShowError fieldName="houseEdgeError"></ShowError>
-                        </div>
-
-                        {/* Reveal Compensation */}
-                        <div className="mb-2 p-4">
-                            <label className="flex items-center  /90 text-sm font-medium mb-2">
-                                <Target className="w-4 h-4 mr-2" />
-                                Roll Reward
-                            </label>
-                            <input
-                                ref={revealCompensationRef}
-                                type="number"
-                                value={formData.revealCompensation}
-                                onChange={(e) => handleInputChange('revealCompensation', e.target.value)}
-                                onFocus={() => setFocusedField('revealCompensation')}
-                                onBlur={() => setFocusedField(null)}
-                                className={`shadow mb-2 w-full px-4 py-3   border rounded-lg     transition-all duration-300 ${focusedField === 'revealCompensation'
-                                    ? 'border-yellow-400 ring-4 ring-yellow-400/20 transform scale-105'
-                                    : 'border-white/30 hover:border-white/50'
-                                    }`}
-                                placeholder="0.001"
-                                step="0.001"
-                            />
-                            <p className='text-sm font-medium'>The reward is sent to rollers. It's taken from both win and loss bet deposit. The amount is always in the configured token. This is an incentive that keeps the game going. Example: When using Flow, 0.1 FLOW for rolling is an adequate reward because it exceeds the gas fee.</p>
-                            <ShowError fieldName="revealCompensationError"></ShowError>
                         </div>
 
                         {/* Bet Min */}
@@ -774,7 +758,7 @@ export default function AnimatedBettingForm(props: { openSnackbar: CallableFunct
                         winnerPrizeShare={formData.winnerPrizeShare}
                         diceRollCost={formData.diceRollCost}
                         houseEdge={formData.houseEdge}
-                        compensation={formData.revealCompensation}
+                        // compensation={formData.revealCompensation}
                         minimumBet={formData.betMin}
                         maximumBet={formData.betMax}
                         betType={formData.betType}
@@ -793,6 +777,7 @@ export default function AnimatedBettingForm(props: { openSnackbar: CallableFunct
                             Mint Game {isNaN(parseInt(nftCount)) ? "" : parseInt(nftCount)}
                         </span>
                     </button>
+                    <UnauthenticateButton />
                 </form>
             </div>
 
