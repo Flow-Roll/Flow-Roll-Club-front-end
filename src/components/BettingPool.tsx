@@ -1,15 +1,17 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Plus, DollarSign, TrendingUp, Award } from 'lucide-react';
 import DisplayOddsAndPrizePool from './DisplayOddsAndPrizePool';
 import AnimatedBettingButtons from './Betbuttons';
 import { handleNetworkSelect, requestAccounts } from '../web3/web3';
-import { ERC20Contract, FLOWROLLGameContract, getContract } from '../web3/ethers';
+import { ERC20Contract, FLOWROLLGameContract, getContract, getContractOnlyView, getJsonRpcProvider } from '../web3/ethers';
 import { formatEther, parseEther, ZeroAddress } from 'ethers';
 import CopyLinkButton from './CopyButton';
 import ShareXButton from './ShareOnX';
 import { TextField } from '@mui/material';
 import { calculateWinningNumbersList } from './GameConfiguration';
 import { BetLostPopup, BetPlacedPopup, BetWonPopup } from './BettingPopup';
+import { authenticateFCL, fundPrizePool } from '../web3/fcl';
+import BettingNumberDisplay from './BettingNumberDisplay';
 
 const PrizePoolDeposit = (props: {
     name: string,
@@ -43,44 +45,20 @@ const PrizePoolDeposit = (props: {
     const [winAmount, setWinAmount] = useState("");
     const [_numberRolled, setNumberRolled] = useState(0);
 
-    const handleOpenPopup = (type: string) => {
-        setOpenPopups(prev => ({ ...prev, [type]: true }));
-        // Auto-close after 3 seconds
-        setTimeout(() => {
-            setOpenPopups(prev => ({ ...prev, [type]: false }));
-        }, 3000);
-    };
+    // const handleOpenPopup = (type: string) => {
+    //     setOpenPopups(prev => ({ ...prev, [type]: true }));
+    //     // Auto-close after 3 seconds
+    //     setTimeout(() => {
+    //         setOpenPopups(prev => ({ ...prev, [type]: false }));
+    //     }, 3000);
+    // };
 
-    const handleClosePopup = (type: string) => {
-        setOpenPopups(prev => ({ ...prev, [type]: false }));
-    };
+    // const handleClosePopup = (type: string) => {
+    //     setOpenPopups(prev => ({ ...prev, [type]: false }));
+    // };
 
-    async function pollForRollAfterBet(gameContract: any) {
-        const lastBet = await FLOWROLLGameContract.view.lastBet(gameContract)
-        console.log("poll last bet")
-        console.log(lastBet)
-        handleOpenPopup("placed")
-        const interval = setInterval(async () => {
-            const bet = await FLOWROLLGameContract.view.bets(gameContract, lastBet)
-            const [_requestId, _createdAtBlock, _player, _bet_, closed, _won, numberRolled, payout] = bet;
 
-            console.log("POLLING")
-
-            if (closed) {
-                clearInterval(interval)
-                setNumberRolled(numberRolled)
-                if (bet.won) {
-                    setWinAmount(formatEther(payout))
-                    handleOpenPopup("won")
-
-                } else {
-                    handleOpenPopup("lost")
-                }
-            }
-
-        }, 1000)
-
-    }
+    
 
 
 
@@ -88,38 +66,31 @@ const PrizePoolDeposit = (props: {
         const amount = parseFloat(depositAmount);
         if (amount && amount > 0) {
             setDepositAmount('');
-
-            const provider = await handleNetworkSelect(props.openSnackbar)
-
-            if (!provider) {
-                props.openSnackbar("unable to connect wallet")
-                return;
-            }
-            await requestAccounts()
-
-            const gameContract = await getContract(provider, props.gameContractAddress, "/FlowRoll.json")
-
+            await authenticateFCL();
             if (props.currencyAddress === ZeroAddress) {
-                await FLOWROLLGameContract.mutate.fundPrizePoolFlow(gameContract, parseEther(depositAmount))
+                await fundPrizePool({ bettingContractHex: props.gameContractAddress, flowValue: depositAmount, gasLimit: "99999" });
             } else {
-                const erc20Contract = await getContract(provider, props.currencyAddress, "/ERC20.json");
-                const signer = await provider.getSigner();
-                const address = await signer.getAddress()
-                //Check if the allowance covers the deposit
-                const allowance = await ERC20Contract.view.allowance(erc20Contract, address, props.gameContractAddress);
+                //TODO: UNIMPLEMENTED FOR NOW!
+                props.openSnackbar("ERC20 deposits are not implemented right now")
+                return;
+                // const erc20Contract = await getContract(provider, props.currencyAddress, "/ERC20.json");
+                // const signer = await provider.getSigner();
+                // const address = await signer.getAddress()
+                // //Check if the allowance covers the deposit
+                // const allowance = await ERC20Contract.view.allowance(erc20Contract, address, props.gameContractAddress);
 
-                if (allowance < parseEther(depositAmount)) {
+                // if (allowance < parseEther(depositAmount)) {
 
 
 
-                    await ERC20Contract.mutate.approveSpend(erc20Contract, props.gameContractAddress, parseEther(depositAmount)).then(async () => {
-                        //After the approval, I deposit
-                        await FLOWROLLGameContract.mutate.fundPrizePoolERC20(gameContract, parseEther(depositAmount))
-                    })
-                } else {
-                    //Just deposit without checking allowance stuff
-                    await FLOWROLLGameContract.mutate.fundPrizePoolERC20(gameContract, parseEther(depositAmount))
-                }
+                //     await ERC20Contract.mutate.approveSpend(erc20Contract, props.gameContractAddress, parseEther(depositAmount)).then(async () => {
+                //         //After the approval, I deposit
+                //         await FLOWROLLGameContract.mutate.fundPrizePoolERC20(gameContract, parseEther(depositAmount))
+                //     })
+                // } else {
+                //     //Just deposit without checking allowance stuff
+                //     await FLOWROLLGameContract.mutate.fundPrizePoolERC20(gameContract, parseEther(depositAmount))
+                // }
 
             }
 
@@ -141,10 +112,7 @@ const PrizePoolDeposit = (props: {
             </span>
             {/* Main Prize Pool Display */}
             <div className="bg-gradient-to-br  rounded-2xl p-8 shadow-lg border ">
-
-
                 <div className="flex items-center justify-between">
-
                     {/* Prize Pool Info */}
                     <div className="flex items-center space-x-4">
                         <div className=" rounded-full">
@@ -163,7 +131,7 @@ const PrizePoolDeposit = (props: {
                             </div>
                             <div className="flex items-center mt-2 text-sm text-gray-600">
                                 <DollarSign className="w-4 h-4 mr-1 text-yellow-400" />
-                                <span>Bet <strong>{props.betAmount} {props.currency}</strong>, Roll Reward: <strong>{props.rollReward} {props.currency}</strong></span>
+                                <span>Bet <strong>{props.betAmount} {props.currency}</strong></span>
                             </div>
                             <div className="flex items-center mt-2 text-sm text-gray-600">
                                 <Award className="w-4 h-4 mr-1 text-green-500" />
@@ -181,47 +149,55 @@ const PrizePoolDeposit = (props: {
 
                     </button>
                 </div>
-                <div className='mt-5 max-w-64'>
-                    <DisplayOddsAndPrizePool
-                        betMin={props.min}
-                        betMax={props.max}
-                        betType={props.betType}
-                        divider={props.divider}></DisplayOddsAndPrizePool>
+                <div className="flex flex-row justify-between">
+                    <div className='mt-5 max-w-64'>
+                        <DisplayOddsAndPrizePool
+                            betMin={props.min}
+                            betMax={props.max}
+                            betType={props.betType}
+                            divider={props.divider}></DisplayOddsAndPrizePool>
+                    </div>
+
+                    {props.betType === "userguess" ?
+                        <div className="flex flex-row justify-center">
+                            <div className="bg-slate-50 rounded-xl p-6 border-2 border-slate-200">
+                                <p className="text-lg text-slate-700">
+                                    The numbers rolled are between{' '}
+                                    <span className="font-bold text-slate-900 text-xl">{props.min}</span>
+                                    {' '}and{' '}
+                                    <span className="font-bold text-slate-900 text-xl">{props.max}</span>
+                                </p>
+                                <h3>Enter the number you want to bet on</h3>
+                                {props.betType === "userguess" ?
+                                    <div className="flex flex-row justify-center">
+                                        <TextField
+                                            type={"number"}
+                                            value={numberToBetOn}
+                                            id="bet-number"
+                                            label="Bet:"
+                                            variant="filled"
+                                            onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
+                                                if (event.target.value !== "") {
+                                                    if (isNaN(parseInt(event.target.value))) {
+                                                        return;
+                                                    }
+                                                }
+                                                setNumberToBetOn(event.target.value);
+                                            }}
+
+                                        />
+                                    </div> : null}
+
+                            </div>
+                        </div> : null}
+
+                    {
+                        props.betType === "divisible" ? <div className="flex flex-row justify-center">
+                            <BettingNumberDisplay min={props.min} max={props.max} bets={calculateWinningNumbersList(props.min.toString(), props.max.toString(), props.betType, props.divider)}  ></BettingNumberDisplay>
+                        </div> : null
+                    }
                 </div>
 
-                {props.betType === "userguess" ?
-                    <div className="flex flex-row justify-center">
-
-                        <p>Chose a number between {props.min} and {props.max}</p>
-                    </div> : null}
-
-                {
-                    props.betType === "divisible" ? <div className="flex flex-row justify-center">
-
-                        <p>The winning numbers are {calculateWinningNumbersList(props.min.toString(), props.max.toString(), props.betType, props.divider)}, the numbers rolled are between {props.min} and {props.max}</p>
-                    </div> : null
-                }
-
-
-                {props.betType === "userguess" ?
-                    <div className="flex flex-row justify-center">
-                        <TextField
-                            type={"number"}
-                            value={numberToBetOn}
-                            id="bet-number"
-                            label="Bet on:"
-                            variant="filled"
-                            onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
-                                if (event.target.value !== "") {
-                                    if (isNaN(parseInt(event.target.value))) {
-                                        return;
-                                    }
-                                }
-                                setNumberToBetOn(event.target.value);
-                            }}
-
-                        />
-                    </div> : null}
                 <AnimatedBettingButtons
                     betType={props.betType}
                     min={props.min}
@@ -231,7 +207,7 @@ const PrizePoolDeposit = (props: {
                     betAmount={props.betAmount}
                     tokenAddress={props.currencyAddress}
                     openSnackbar={props.openSnackbar}
-                    pollForRollAfterBet={pollForRollAfterBet}
+                // pollForRollAfterBet={pollForRollAfterBet}
                 ></AnimatedBettingButtons>
             </div>
 
@@ -295,24 +271,6 @@ const PrizePoolDeposit = (props: {
                     </div>
                 </div>
             )}
-            <BetPlacedPopup
-                open={openPopups.placed}
-                onClose={() => handleClosePopup('placed')}
-                betAmount={depositAmount}
-            />
-
-            <BetWonPopup
-                open={openPopups.won}
-                onClose={() => handleClosePopup('won')}
-                betAmount={depositAmount}
-                winAmount={winAmount}
-            />
-
-            <BetLostPopup
-                open={openPopups.lost}
-                onClose={() => handleClosePopup('lost')}
-                betAmount={depositAmount}
-            />
         </div>
 
 
