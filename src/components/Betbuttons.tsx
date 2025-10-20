@@ -12,12 +12,9 @@ export default function AnimatedBettingButtons(props: {
     numberToBetOn: number,
     min: number,
     max: number,
-    betType: string,
-    // pollForRollAfterBet: CallableFunction
+    betType: string
 }) {
     const [betPressed, setBetPressed] = useState(false);
-    const [rollPressed, setRollPressed] = useState(false);
-    const [isRolling, setIsRolling] = useState(false);
 
     const handleBet = async () => {
 

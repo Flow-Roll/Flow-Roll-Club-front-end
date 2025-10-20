@@ -1,13 +1,12 @@
 import { useEffect, useRef, useState } from 'react';
-import { Dice1, Coins, Trophy, Settings, Zap, Target, Badge, ArrowDownCircle, ArrowUpCircle, Shuffle, Divide } from 'lucide-react';
-import { ERC20Contract, FLOWROLLNFTContract, getContract, getContractOnlyView, getJsonRpcProvider, NFTSale_v2Contract } from '../web3/ethers';
+import { Dice1, Coins, Trophy, Settings, Zap, Badge, ArrowDownCircle, ArrowUpCircle, Shuffle, Divide } from 'lucide-react';
+import { ERC20Contract, FLOWROLLNFTContract, getContractOnlyView, getJsonRpcProvider, NFTSale_v2Contract } from '../web3/ethers';
 import { CONTRACTADDRESSES } from '../web3/contracts';
 import { formatEther, parseEther, ZeroAddress } from 'ethers';
 import DiceGameSummary from './DiceGameSummary';
 import DisplayOddsAndPrizePool from './DisplayOddsAndPrizePool';
 
 import { getAddress } from 'viem'
-import { handleNetworkSelect, requestAccounts } from '../web3/web3';
 import { authenticateFCL, buyNFT } from '../web3/fcl';
 import { UnauthenticateButton } from './UnauthenticateButton';
 
@@ -16,7 +15,6 @@ export default function AnimatedBettingForm(props: { openSnackbar: CallableFunct
     const [nftCount, setNFTCount] = useState("");
 
     useEffect(() => {
-        //TODO: Update to the new contract that just fetches the flowValue
         const fetchData = async () => {
             console.log("fetch data runs    ")
             const provider = getJsonRpcProvider();
@@ -388,8 +386,6 @@ export default function AnimatedBettingForm(props: { openSnackbar: CallableFunct
             return;
         }
 
-        const contract = await getContractOnlyView(provider, CONTRACTADDRESSES.NFTSaleV2, "NFTSale_v2.json")
-
         const getValue = () => {
             if (couponDetails.isSet) {
                 return couponDetails.paymentWithCoupon
@@ -438,8 +434,8 @@ export default function AnimatedBettingForm(props: { openSnackbar: CallableFunct
 
         console.log("name exists", nameExists)
 
-        //TODO: authenticate here with the FCL
-        authenticateFCL()
+        await authenticateFCL()
+        //TODO: fetch the address and run a query to check if the address used the coupon already
         // return
         // if (couponDetails.isSet) {
         //     //TODO: I will need to do an FCL call to check if used the coupon already

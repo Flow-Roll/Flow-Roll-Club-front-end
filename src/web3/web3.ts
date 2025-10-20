@@ -1,5 +1,5 @@
 import MetaMaskOnboarding from "@metamask/onboarding";
-import {Web3Provider} from "@ethersproject/providers"
+import { Web3Provider } from "@ethersproject/providers"
 
 
 export const NETWORKDETAILS = {

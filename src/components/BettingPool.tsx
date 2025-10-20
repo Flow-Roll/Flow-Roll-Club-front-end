@@ -1,15 +1,12 @@
-import { useEffect, useState } from 'react';
+import {  useState } from 'react';
 import { Plus, DollarSign, TrendingUp, Award } from 'lucide-react';
 import DisplayOddsAndPrizePool from './DisplayOddsAndPrizePool';
 import AnimatedBettingButtons from './Betbuttons';
-import { handleNetworkSelect, requestAccounts } from '../web3/web3';
-import { ERC20Contract, FLOWROLLGameContract, getContract, getContractOnlyView, getJsonRpcProvider } from '../web3/ethers';
-import { formatEther, parseEther, ZeroAddress } from 'ethers';
+import {  ZeroAddress } from 'ethers';
 import CopyLinkButton from './CopyButton';
 import ShareXButton from './ShareOnX';
 import { TextField } from '@mui/material';
 import { calculateWinningNumbersList } from './GameConfiguration';
-import { BetLostPopup, BetPlacedPopup, BetWonPopup } from './BettingPopup';
 import { authenticateFCL, fundPrizePool } from '../web3/fcl';
 import BettingNumberDisplay from './BettingNumberDisplay';
 
@@ -35,32 +32,6 @@ const PrizePoolDeposit = (props: {
     const [isDepositModalOpen, setIsDepositModalOpen] = useState(false);
 
     const [numberToBetOn, setNumberToBetOn] = useState("");
-
-    const [openPopups, setOpenPopups] = useState({
-        placed: false,
-        won: false,
-        lost: false,
-    });
-
-    const [winAmount, setWinAmount] = useState("");
-    const [_numberRolled, setNumberRolled] = useState(0);
-
-    // const handleOpenPopup = (type: string) => {
-    //     setOpenPopups(prev => ({ ...prev, [type]: true }));
-    //     // Auto-close after 3 seconds
-    //     setTimeout(() => {
-    //         setOpenPopups(prev => ({ ...prev, [type]: false }));
-    //     }, 3000);
-    // };
-
-    // const handleClosePopup = (type: string) => {
-    //     setOpenPopups(prev => ({ ...prev, [type]: false }));
-    // };
-
-
-    
-
-
 
     const handleDeposit = async () => {
         const amount = parseFloat(depositAmount);

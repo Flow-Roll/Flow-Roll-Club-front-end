@@ -106,7 +106,7 @@ export default function GamePage(props: { openSnackbar: (message: string) => voi
                 const provider = getJsonRpcProvider();
                 const contract = await getContractOnlyView(provider, CONTRACTADDRESSES.FlowRollNFT, "/FlowRollNFT.json")
                 const _name = await FLOWROLLNFTContract.view.nameOf(contract, index).catch((err) => {
-                    console.log("error fetching name")
+                    console.log(err)
                 })
                 if (_name === "") {
                     setName("Undefined")

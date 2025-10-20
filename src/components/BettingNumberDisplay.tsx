@@ -1,4 +1,3 @@
-import React from 'react';
 
 export default function BettingNumberDisplay(props: { min: number, max: number, bets: string[] | number[] }) {
     return (
