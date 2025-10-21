@@ -48,7 +48,7 @@ export default function GamePage(props: { openSnackbar: (message: string) => voi
 
         setLastClosedBetIndex(lastClosedBet)
 
-        if (lastBet === 0) {
+        if (lastBet === 0n) {
             //Do not fetch last bets
             return
         }
@@ -66,6 +66,7 @@ export default function GamePage(props: { openSnackbar: (message: string) => voi
             }
         }
 
+
         const last9Bets = []
 
         let toSub = 9n;
@@ -78,7 +79,8 @@ export default function GamePage(props: { openSnackbar: (message: string) => voi
             }
         }
 
-        for (let i = lastBet - toSub; i < lastBet; i++) {
+
+        for (let i = lastBet - toSub; i <= lastBet; i++) {
             const lastb = await FLOWROLLGameContract.view.bets(viewC, i);
             last9Bets.push(
                 {
@@ -116,7 +118,7 @@ export default function GamePage(props: { openSnackbar: (message: string) => voi
 
                 const _gameContractAddress = await FLOWROLLNFTContract.view.flowRollContractAddresses(contract, index)
                 setGameContractAddress(_gameContractAddress)
-            
+
                 const gameContract = await getContractOnlyView(provider, _gameContractAddress, "/FlowRoll.json");
                 const tokenAddress = await FLOWROLLGameContract.view.ERC20Address(gameContract);
 
